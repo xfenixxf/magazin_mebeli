@@ -1,9 +1,5 @@
-from PyQt6.QtWidgets import (QButtonGroup, QMainWindow, QWidget, QVBoxLayout,
-                             QHBoxLayout, QLabel, QLineEdit, QPushButton,
-                             QTableWidget, QTableWidgetItem,
-                             QComboBox, QGroupBox, QMessageBox, QDialog,
-                             QHeaderView, QFrame, QDateEdit,
-                             QTextEdit, QCheckBox, QGridLayout,
+from PyQt6.QtWidgets import (QButtonGroup, QMainWindow, QWidget, QVBoxLayout,QHBoxLayout, QLabel, QLineEdit, QPushButton,QTableWidget,
+                             QFrame,QDateEdit,QComboBox, QGroupBox, QMessageBox, QDialog,QTableWidgetItem,QHeaderView,QTextEdit, QCheckBox, QGridLayout,
                              QStackedWidget, QScrollArea)
 from PyQt6.QtCore import Qt, QDate
 from datetime import datetime
@@ -15,13 +11,13 @@ class FurnitureDialog(QDialog):
         self.furniture_id = furniture_id
         self.action_type = action_type
 
-        title_map = {
+        title = {
             'edit': "Редактирование мебели",
             'supply': "Поставка мебели",
             'write_off': "Списание мебели"
         }
 
-        title = title_map.get(action_type, "Добавление мебели") if not furniture_id else "Редактирование мебели"
+        title = title.get(action_type, "Добавление мебели") if not furniture_id else "Редактирование мебели"
         self.setWindowTitle(title)
         self.setFixedSize(500, 500)
         self.init_ui()
@@ -41,7 +37,7 @@ class FurnitureDialog(QDialog):
 
         layout = QVBoxLayout()
         layout.setSpacing(15)
-        layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
 
         name_label = QLabel("Наименование")
         name_label.setStyleSheet("font-weight: bold;")
@@ -49,6 +45,7 @@ class FurnitureDialog(QDialog):
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Введите название мебели")
+        self.name_input.setMaxLength(45)
         left_column.addWidget(self.name_input)
 
         category_label = QLabel("Категория")
@@ -75,6 +72,7 @@ class FurnitureDialog(QDialog):
 
         self.producer_input = QLineEdit()
         self.producer_input.setPlaceholderText("Введите производителя")
+        self.producer_input.setMaxLength(45)
         left_column.addWidget(self.producer_input)
 
         color_label = QLabel("Цвет")
@@ -94,6 +92,7 @@ class FurnitureDialog(QDialog):
         quantity_layout = QHBoxLayout()
         self.quantity_input = QLineEdit()
         self.quantity_input.setFixedWidth(80)
+        self.quantity_input.setMaxLength(15)
         quantity_layout.addWidget(self.quantity_input)
         quantity_layout.addWidget(QLabel("шт"))
         quantity_widget.setLayout(quantity_layout)
@@ -107,6 +106,8 @@ class FurnitureDialog(QDialog):
         price_layout = QHBoxLayout()
         self.price_input = QLineEdit()
         self.price_input.setFixedWidth(80)
+        self.price_input.setMaxLength(15)
+
         price_layout.addWidget(self.price_input)
         price_layout.addWidget(QLabel("руб"))
         price_widget.setLayout(price_layout)
@@ -132,11 +133,12 @@ class FurnitureDialog(QDialog):
         length_layout = QVBoxLayout()
         length_label = QLabel("Длина")
         length_label.setStyleSheet("font-weight: bold;")
-        length_layout.addWidget(length_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        length_layout.addWidget(length_label)
 
         length_input_layout = QHBoxLayout()
         self.length_input = QLineEdit()
         self.length_input.setFixedWidth(50)
+        self.length_input.setMaxLength(9)
         length_input_layout.addWidget(self.length_input)
         length_input_layout.addWidget(QLabel("мм"))
         length_layout.addLayout(length_input_layout)
@@ -147,11 +149,12 @@ class FurnitureDialog(QDialog):
         width_layout = QVBoxLayout()
         width_label = QLabel("Ширина")
         width_label.setStyleSheet("font-weight: bold;")
-        width_layout.addWidget(width_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        width_layout.addWidget(width_label)
 
         width_input_layout = QHBoxLayout()
         self.width_input = QLineEdit()
         self.width_input.setFixedWidth(50)
+        self.width_input.setMaxLength(9)
         width_input_layout.addWidget(self.width_input)
         width_input_layout.addWidget(QLabel("мм"))
         width_layout.addLayout(width_input_layout)
@@ -167,6 +170,7 @@ class FurnitureDialog(QDialog):
         height_input_layout = QHBoxLayout()
         self.height_input = QLineEdit()
         self.height_input.setFixedWidth(50)
+        self.height_input.setMaxLength(9)
         height_input_layout.addWidget(self.height_input)
         height_input_layout.addWidget(QLabel("мм"))
         height_layout.addLayout(height_input_layout)
@@ -177,11 +181,12 @@ class FurnitureDialog(QDialog):
         weight_layout = QVBoxLayout()
         weight_label = QLabel("Вес")
         weight_label.setStyleSheet("font-weight: bold;")
-        weight_layout.addWidget(weight_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        weight_layout.addWidget(weight_label)
 
         weight_input_layout = QHBoxLayout()
         self.weight_input = QLineEdit()
         self.weight_input.setFixedWidth(50)
+        self.weight_input.setMaxLength(7)
         weight_input_layout.addWidget(self.weight_input)
         weight_input_layout.addWidget(QLabel("кг"))
         weight_layout.addLayout(weight_input_layout)
@@ -189,7 +194,7 @@ class FurnitureDialog(QDialog):
         dimensions_layout.addWidget(weight_widget)
 
         dimensions_widget.setLayout(dimensions_layout)
-        layout.addWidget(dimensions_widget, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(dimensions_widget)
         button_widget = QWidget()
         button_layout = QHBoxLayout()
         button_layout.addStretch()
@@ -244,28 +249,24 @@ class FurnitureDialog(QDialog):
             self.color_combo.addItem(row[1], row[0])
 
     def load_furniture_data(self):
-        query = """
-                            SELECT 
-                                m.idМебель,
-                                m.Наименование,
-                                m.Категория_idКатегории,
-                                m.Материал_idМатериал,
-                                m.Производитель,
-                                m.Цвет_idЦвет,
-                                m.Габариты,
-                                m.Вес,
-                                m.Количество,
-                                COALESCE((
-                                    SELECT p.Себестоимость 
-                                    FROM Поставки p 
-                                    WHERE p.Мебель_idМебель = m.idМебель AND Тип_операции = 'Поставка'
-                                    ORDER BY p.Дата DESC 
-                                    LIMIT 1
-                                ), 0) as последняя_себестоимость
-                            FROM Мебель m
-                            WHERE m.idМебель = %s
-                            """
-        result = db.execute_query(query, (self.furniture_id,))
+        query = """SELECT 
+                        m.idМебель,
+                        m.Наименование,
+                        m.Категория_idКатегории,
+                        m.Материал_idМатериал,
+                        m.Производитель,
+                        m.Цвет_idЦвет,
+                        m.Габариты,
+                        m.Вес,
+                        m.Количество,
+                        COALESCE((SELECT p.Себестоимость 
+                        FROM Поставки p 
+                        WHERE p.Мебель_idМебель = m.idМебель AND Тип_операции = 'Поставка' 
+                        ORDER BY p.Дата DESC LIMIT 1)) 
+                        FROM Мебель m
+                        WHERE m.idМебель = %s
+                """
+        result = db.execute_query(query, (self.furniture_id))
 
         if result:
             row = result[0]
@@ -429,14 +430,14 @@ class FurnitureDialog(QDialog):
 
             elif self.action_type == 'write_off':
                 if self.furniture_id:
-                    cost_query = """
+                    cost = """
                            SELECT Себестоимость 
                            FROM Поставки 
                            WHERE Мебель_idМебель = %s 
                            ORDER BY Дата DESC 
                            LIMIT 1
                            """
-                    cost_result = db.execute_query(cost_query, (self.furniture_id,))
+                    cost_result = db.execute_query(cost, (self.furniture_id,))
                     price = cost_result[0][0] if cost_result and cost_result[0][0] else 0
                 else:
                     price_text = self.price_input.text().strip()
@@ -470,7 +471,7 @@ class FurnitureDialog(QDialog):
                     QMessageBox.warning(self, "Ошибка", "Цена должна быть числом!")
                     return
 
-            update_furniture_query = """
+            update_furniture = """
             UPDATE Мебель 
             SET Наименование = %s,
                 Категория_idКатегории = %s,
@@ -483,31 +484,30 @@ class FurnitureDialog(QDialog):
             WHERE idМебель = %s
             """
 
-            db.execute_query(update_furniture_query, (
+            db.execute_query(update_furniture, (
                 name, category_id, material_id, color_id,
                 producer, dimensions, weight, quantity, self.furniture_id
             ))
 
             if new_price is not None and self.furniture_id:
-                last_supply_query = """
+                last_supply = """
                 SELECT idПоставки 
                 FROM Поставки 
-                WHERE Мебель_idМебель = %s 
-                  AND Тип_операции = 'Поставка'  
-                ORDER BY Дата DESC, idПоставки DESC 
+                WHERE Мебель_idМебель = %s AND Тип_операции = 'Поставка'  
+                ORDER BY Дата DESC
                 LIMIT 1
                 """
-                last_supply_result = db.execute_query(last_supply_query, (self.furniture_id,))
+                last_supply_result = db.execute_query(last_supply, (self.furniture_id,))
 
                 if last_supply_result and len(last_supply_result) > 0:
                     last_supply_id = last_supply_result[0][0]
 
-                    update_supply_query = """
+                    update_supply = """
                     UPDATE Поставки 
                     SET Себестоимость = %s
                     WHERE idПоставки = %s
                     """
-                    db.execute_query(update_supply_query, (new_price, last_supply_id))
+                    db.execute_query(update_supply, (new_price, last_supply_id))
 
             self.accept()
 
@@ -547,9 +547,7 @@ class FurnitureDialog(QDialog):
                 furniture_id = f"{next_number:06d}"
 
                 insert_query = """
-                INSERT INTO Мебель 
-                (idМебель, Наименование, Категория_idКатегории, Материал_idМатериал,
-                 Цвет_idЦвет, Производитель, Габариты, Вес, Количество)
+                INSERT INTO Мебель (idМебель, Наименование, Категория_idКатегории, Материал_idМатериал,Цвет_idЦвет, Производитель, Габариты, Вес, Количество)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
@@ -559,13 +557,12 @@ class FurnitureDialog(QDialog):
 
                 new_quantity = quantity
 
-            supply_query = """
-            INSERT INTO Поставки 
-            (Дата, Количество, Себестоимость, Мебель_idМебель, Тип_операции)
+            supply = """
+            INSERT INTO Поставки (Дата, Количество, Себестоимость, Мебель_idМебель, Тип_операции)
             VALUES (%s, %s, %s, %s, %s)
             """
 
-            db.execute_query(supply_query, (
+            db.execute_query(supply, (
                 current_date, quantity, price, furniture_id, "Поставка"
             ))
 
@@ -614,8 +611,7 @@ class FurnitureDialog(QDialog):
             db.execute_query(update_query, (new_quantity, furniture_id))
 
             supply_query = """
-            INSERT INTO Поставки 
-            (Дата, Количество, Себестоимость, Мебель_idМебель, Тип_операции)
+            INSERT INTO Поставки (Дата, Количество, Себестоимость, Мебель_idМебель, Тип_операции)
             VALUES (%s, %s, %s, %s, %s)
             """
 
@@ -646,53 +642,49 @@ class EmployeeDialog(QDialog):
         right_column = QVBoxLayout()
         right_column.setSpacing(15)
 
-        title_label = QLabel("Добавление сотрудника" if not self.employee_id else "Изменение сотрудника")
-        title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        title = QLabel("Добавление сотрудника" if not self.employee_id else "Изменение сотрудника")
+        title.setStyleSheet("font-size: 16px; font-weight: bold;")
 
         layout = QVBoxLayout()
         layout.setSpacing(15)
-        layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
 
         surname_label = QLabel("Фамилия")
-        surname_label.setStyleSheet("font-weight: bold;")
         left_column.addWidget(surname_label)
-
         self.surname_input = QLineEdit()
+        self.surname_input.setMaxLength(45)
         left_column.addWidget(self.surname_input)
 
         name_label = QLabel("Имя")
-        name_label.setStyleSheet("font-weight: bold;")
         left_column.addWidget(name_label)
-
         self.name_input = QLineEdit()
+        self.name_input.setMaxLength(45)
         left_column.addWidget(self.name_input)
 
         patronymic_label = QLabel("Отчество")
-        patronymic_label.setStyleSheet("font-weight: bold;")
         left_column.addWidget(patronymic_label)
-
         self.patronymic_input = QLineEdit()
+        self.patronymic_input.setMaxLength(45)
         left_column.addWidget(self.patronymic_input)
 
         phone_label = QLabel("Телефон")
-        phone_label.setStyleSheet("font-weight: bold;")
         left_column.addWidget(phone_label)
-
         self.phone_input = QLineEdit()
+        self.phone_input.setMaxLength(10)
         left_column.addWidget(self.phone_input)
 
         email_label = QLabel("Email")
-        email_label.setStyleSheet("font-weight: bold;")
         left_column.addWidget(email_label)
 
         self.email_input = QLineEdit()
+        self.email_input.setMaxLength(30)
         left_column.addWidget(self.email_input)
 
         schedule_label = QLabel("График работы")
         schedule_label.setStyleSheet("font-weight: bold;")
         right_column.addWidget(schedule_label)
-
         self.schedule_input = QLineEdit()
+        self.schedule_input.setMaxLength(20)
         right_column.addWidget(self.schedule_input)
 
         birth_date_label = QLabel("Дата рождения")
@@ -711,7 +703,7 @@ class EmployeeDialog(QDialog):
         self.position_combo = QComboBox()
         self.position_combo.addItem("Выберите должность")
         self.load_positions()
-        self.position_combo.currentIndexChanged.connect(self.update_salary_from_position)
+        self.position_combo.currentIndexChanged.connect(self.update_salary)
         right_column.addWidget(self.position_combo)
 
         salary_label = QLabel("Оклад")
@@ -729,10 +721,9 @@ class EmployeeDialog(QDialog):
         right_column.addWidget(salary_widget)
 
         password_label = QLabel("Пароль")
-        password_label.setStyleSheet("font-weight: bold;")
         right_column.addWidget(password_label)
-
         self.password_input = QLineEdit()
+        self.schedule_input.setMaxLength(30)
         right_column.addWidget(self.password_input)
 
         main_layout.addLayout(left_column)
@@ -773,7 +764,7 @@ class EmployeeDialog(QDialog):
         self.btn_cancel.clicked.connect(self.reject)
 
         if self.employee_id:
-            self.load_employee_data()
+            self.load_employee()
 
     def load_positions(self):
         try:
@@ -785,7 +776,7 @@ class EmployeeDialog(QDialog):
         except Exception as e:
             print(f"Ошибка загрузки должностей: {e}")
 
-    def update_salary_from_position(self, index):
+    def update_salary(self, index):
         if index > 0:
             data = self.position_combo.currentData()
             if data:
@@ -794,7 +785,7 @@ class EmployeeDialog(QDialog):
         else:
             self.salary_input.clear()
 
-    def load_employee_data(self):
+    def load_employee(self):
         try:
             query = """
             SELECT 
@@ -836,9 +827,13 @@ class EmployeeDialog(QDialog):
                     self.password_input.setText(row[6])
 
                 if row[7]:
-                    date = QDate.fromString(str(row[7]), "yyyy-MM-dd")
-                    if date.isValid():
-                        self.birth_date_input.setDate(date)
+                    date_str = str(row[7])
+                    if date_str and date_str != "None":
+                        date = QDate.fromString(date_str, "yyyy-MM-dd")
+                        if date.isValid():
+                            self.birth_date_input.setDate(date)
+                    else:
+                        self.birth_date_input.setDate(QDate.currentDate())
 
                 self.schedule_input.setText(row[8] if row[8] else "")
 
@@ -886,19 +881,6 @@ class EmployeeDialog(QDialog):
                 QMessageBox.warning(self, 'Ошибка', 'Введите корректный email (должен содержать @ и домен)')
                 return
 
-            check_email_query = """
-                        SELECT COUNT(*) FROM Сотрудники s
-                        JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
-                        WHERE p.email = %s
-                        """
-            result = db.execute_query(check_email_query, (email,))
-
-            if result and result[0][0] > 0:
-                QMessageBox.warning(self, "Ошибка",
-                                    "Этот email уже используется другим сотрудником!\n"
-                                    "Пожалуйста, введите другой email.")
-                return
-
             birth_date = self.birth_date_input.date().toString("yyyy-MM-dd")
 
             schedule = self.schedule_input.text().strip()
@@ -915,20 +897,60 @@ class EmployeeDialog(QDialog):
                 return
 
             if self.employee_id:
-                check_password_query = """
+                current_email = """
+                        SELECT p.email FROM Сотрудники s
+                        JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
+                        WHERE s.idСотрудника = %s
+                        """
+                current_result = db.execute_query(current_email, (self.employee_id,))
+
+                current_email = ""
+                if current_result and current_result[0] and current_result[0][0]:
+                    current_email = current_result[0][0]
+
+                if email != current_email:
+                    check_email = """
+                            SELECT COUNT(*) FROM Сотрудники s
+                            JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
+                            WHERE p.email = %s AND s.idСотрудника != %s
+                            """
+                    result = db.execute_query(check_email, (email, self.employee_id))
+
+                    if result and result[0][0] > 0:
+                        QMessageBox.warning(self, "Ошибка",
+                                            "Этот email уже используется другим сотрудником!\n"
+                                            "Пожалуйста, введите другой email.")
+                        return
+
+            else:
+                check_email = """
+                        SELECT COUNT(*) FROM Сотрудники s
+                        JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
+                        WHERE p.email = %s
+                        """
+                result = db.execute_query(check_email, (email))
+
+                if result and result[0][0] > 0:
+                    QMessageBox.warning(self, "Ошибка",
+                                        "Этот email уже используется другим сотрудником!\n"
+                                        "Пожалуйста, введите другой email.")
+                    return
+
+            if self.employee_id:
+                check_password = """
                         SELECT Пароли_idПароли FROM Сотрудники WHERE idСотрудника = %s
                         """
-                result = db.execute_query(check_password_query, (self.employee_id,), fetch=True)
+                result = db.execute_query(check_password, (self.employee_id,))
 
                 password_id = result[0][0] if result and result[0][0] else None
 
                 if password_id:
-                    password_update_query = """
+                    password_update = """
                             UPDATE Пароли 
                             SET email = %s, Пароль = %s
                             WHERE idПароли = %s
                             """
-                    db.execute_query(password_update_query, (email, password, password_id))
+                    db.execute_query(password_update, (email, password, password_id))
 
 
                 query = """
@@ -950,20 +972,19 @@ class EmployeeDialog(QDialog):
                 ))
 
             else:
-                password_insert_query = """
+                password_insert = """
                         INSERT INTO Пароли (Пароль, email) 
                         VALUES (%s, %s)
                         """
-                db.execute_query(password_insert_query, (password,email ))
+                db.execute_query(password_insert, (password,email ))
                 get_last_id_query = "SELECT LAST_INSERT_ID()"
                 result = db.execute_query(get_last_id_query)
                 password_id = result
 
                 query = """
-                            INSERT INTO Сотрудники 
-                            (Фамилия, Имя, Отчество, Должность_idДолжности, телефон, 
-                             Дата_рождения, График_работы, Пароли_idПароли)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO Сотрудники 
+                        (Фамилия, Имя, Отчество, Должность_idДолжности, телефон, Дата_рождения, График_работы, Пароли_idПароли)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         """
 
                 db.execute_query(query, (
@@ -985,6 +1006,9 @@ class MainWindow(QMainWindow):
         self.all_catalog_data = []
         self.current_catalog_filters = {}
         self.init_ui()
+        self.setWindowTitle('Информационная система мебельного магазина')
+        self.setGeometry(100, 100, 1490, 800)
+        self.setFixedSize(1490, 800)
 
     def init_ui(self):
         self.setWindowTitle('Информационная система мебельного магазина')
@@ -1022,13 +1046,13 @@ class MainWindow(QMainWindow):
         self.work_area = QStackedWidget()
         main_layout.addWidget(self.work_area)
 
-        self.create_catalog_page()
-        self.create_supplies_page()
-        self.create_orders_page()
-        self.create_clients_page()
-        self.create_cash_page()
-        self.create_employees_page()
-        self.create_reports_page()
+        self.create_catalog()
+        self.create_supplies()
+        self.create_orders()
+        self.create_clients()
+        self.create_cash()
+        self.create_employees()
+        self.create_reports()
 
         self.check_user_access()
         central_widget.setLayout(main_layout)
@@ -1144,7 +1168,7 @@ class MainWindow(QMainWindow):
                     }
                 """)
     #Каталог
-    def create_catalog_page(self):
+    def create_catalog(self):
         page = QWidget()
         layout = QVBoxLayout()
 
@@ -1218,7 +1242,7 @@ class MainWindow(QMainWindow):
                 combo = QComboBox()
                 combo.setFixedHeight(30)
                 combo.addItem("Категория")
-                combo.currentTextChanged.connect(self.filter_catalog_by_category)
+                combo.currentTextChanged.connect(self.filter_catalog_category)
                 combo.setStyleSheet("""
                         QComboBox {
                             font-weight: bold;
@@ -1227,13 +1251,13 @@ class MainWindow(QMainWindow):
                             border: 1px solid #d0d0d0;
                         }
                     """)
-                self.category_filter_combo_catalog_page_main = combo
+                self.category_filter_catalog = combo
                 header_widget_layout.addWidget(combo)
             elif i == 3:
                 combo = QComboBox()
                 combo.setFixedHeight(30)
                 combo.addItem("Материал")
-                combo.currentTextChanged.connect(self.filter_catalog_by_material)
+                combo.currentTextChanged.connect(self.filter_catalog_material)
                 combo.setStyleSheet("""
                         QComboBox {
                             font-weight: bold;
@@ -1242,7 +1266,7 @@ class MainWindow(QMainWindow):
                             border: 1px solid #d0d0d0;
                         }
                     """)
-                self.material_filter_combo_catalog_page = combo
+                self.material_filter_catalog = combo
                 header_widget_layout.addWidget(combo)
             elif i == 4:
                 label = QLabel("Производитель")
@@ -1262,7 +1286,7 @@ class MainWindow(QMainWindow):
                 combo = QComboBox()
                 combo.setFixedHeight(30)
                 combo.addItem("Цвет")
-                combo.currentTextChanged.connect(self.filter_catalog_by_color)
+                combo.currentTextChanged.connect(self.filter_catalog_color)
                 combo.setStyleSheet("""
                         QComboBox {
                             font-weight: bold;
@@ -1271,7 +1295,7 @@ class MainWindow(QMainWindow):
                             border: 1px solid #d0d0d0;
                         }
                     """)
-                self.color_filter_combo_catalog_page = combo
+                self.color_filter_catalog = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 6:
@@ -1350,69 +1374,48 @@ class MainWindow(QMainWindow):
         page.setLayout(layout)
         self.work_area.addWidget(page)
 
-        self.load_catalog_data()
+        self.load_catalog()
 
         self.btn_search_catalog.clicked.connect(self.search_catalog)
         self.btn_modify_furniture.clicked.connect(lambda: self.modify_furniture('edit'))
-        self.catalog_table.itemSelectionChanged.connect(self.update_modify_button_state)
+        self.catalog_table.itemSelectionChanged.connect(self.update_button)
 
         return page
     #Фильтры каталога
-    def load_catalog_filter_data(self):
-        categories_query = "SELECT DISTINCT Наименование FROM Категория ORDER BY Наименование"
+    def load_filter(self):
+        categories_query = "SELECT Наименование FROM Категория ORDER BY Наименование"
         categories = db.execute_query(categories_query)
 
-        materials_query = "SELECT DISTINCT Наименование FROM Материал ORDER BY Наименование"
+        materials_query = "SELECT Наименование FROM Материал ORDER BY Наименование"
         materials = db.execute_query(materials_query)
 
-        colors_query = "SELECT DISTINCT Наименование FROM Цвет ORDER BY Наименование"
+        colors_query = "SELECT Наименование FROM Цвет ORDER BY Наименование"
         colors = db.execute_query(colors_query)
-
-        if hasattr(self, 'category_filter_combo_catalog_page_main'):
-            self.category_filter_combo_catalog_page_main.clear()
-            self.category_filter_combo_catalog_page_main.addItem("Категория")
+        #Фильтр каталога
+        if hasattr(self, 'category_filter_catalog'):
+            self.category_filter_catalog.clear()
+            self.category_filter_catalog.addItem("Категория")
             for category in categories:
                 if category[0]:
-                    self.category_filter_combo_catalog_page_main.addItem(category[0])
+                    self.category_filter_catalog.addItem(category[0])
 
-        if hasattr(self, 'material_filter_combo_catalog_page'):
-            self.material_filter_combo_catalog_page.clear()
-            self.material_filter_combo_catalog_page.addItem("Материал")
+        if hasattr(self, 'material_filter_catalog'):
+            self.material_filter_catalog.clear()
+            self.material_filter_catalog.addItem("Материал")
             for material in materials:
                 if material[0]:
-                    self.material_filter_combo_catalog_page.addItem(material[0])
+                    self.material_filter_catalog.addItem(material[0])
 
-        if hasattr(self, 'color_filter_combo_catalog_page'):
-            self.color_filter_combo_catalog_page.clear()
-            self.color_filter_combo_catalog_page.addItem("Цвет")
+        if hasattr(self, 'color_filter_catalog'):
+            self.color_filter_catalog.clear()
+            self.color_filter_catalog.addItem("Цвет")
             for color in colors:
                 if color[0]:
-                    self.color_filter_combo_catalog_page.addItem(color[0])
+                    self.color_filter_catalog.addItem(color[0])
 
-        if hasattr(self, 'category_filter_combo_catalog'):
-            self.category_filter_combo_catalog.clear()
-            self.category_filter_combo_catalog.addItem("Все категории")
-            for category in categories:
-                if category[0]:
-                    self.category_filter_combo_catalog.addItem(category[0])
-
-        if hasattr(self, 'material_filter_combo_catalog'):
-            self.material_filter_combo_catalog.clear()
-            self.material_filter_combo_catalog.addItem("Материал")
-            for material in materials:
-                if material[0]:
-                    self.material_filter_combo_catalog.addItem(material[0])
-
-        if hasattr(self, 'color_filter_combo_catalog'):
-            self.color_filter_combo_catalog.clear()
-            self.color_filter_combo_catalog.addItem("Цвет")
-            for color in colors:
-                if color[0]:
-                    self.color_filter_combo_catalog.addItem(color[0])
-
-    def filter_catalog_by_category(self):
-        if hasattr(self, 'category_filter_combo_catalog_page_main'):
-            selected_category = self.category_filter_combo_catalog_page_main.currentText()
+    def filter_catalog_category(self):
+        if hasattr(self, 'category_filter_catalog'):
+            selected_category = self.category_filter_catalog.currentText()
         else:
             return
 
@@ -1432,9 +1435,9 @@ class MainWindow(QMainWindow):
                 else:
                     self.catalog_table.setRowHidden(row, True)
 
-    def filter_catalog_by_material(self):
-        if hasattr(self, 'material_filter_combo_catalog_page'):
-            selected_material = self.material_filter_combo_catalog_page.currentText()
+    def filter_catalog_material(self):
+        if hasattr(self, 'material_filter_catalog'):
+            selected_material = self.material_filter_catalog.currentText()
         else:
             return
 
@@ -1454,9 +1457,9 @@ class MainWindow(QMainWindow):
                 else:
                     self.catalog_table.setRowHidden(row, True)
 
-    def filter_catalog_by_color(self):
-        if hasattr(self, 'color_filter_combo_catalog_page'):
-            selected_color = self.color_filter_combo_catalog_page.currentText()
+    def filter_catalog_color(self):
+        if hasattr(self, 'color_filter_catalog'):
+            selected_color = self.color_filter_catalog.currentText()
         else:
             return
 
@@ -1476,14 +1479,14 @@ class MainWindow(QMainWindow):
                 else:
                     self.catalog_table.setRowHidden(row, True)
 
-    def update_modify_button_state(self):
+    def update_button(self):
         selected_rows = self.catalog_table.selectionModel().selectedRows()
         if selected_rows:
             self.btn_modify_furniture.setEnabled(True)
         else:
             self.btn_modify_furniture.setEnabled(False)
     #Поставки
-    def create_supplies_page(self):
+    def create_supplies(self):
         page = QWidget()
         layout = QVBoxLayout()
 
@@ -1562,7 +1565,7 @@ class MainWindow(QMainWindow):
                 combo.addItem("Тип операции")
                 combo.addItem("Поставка")
                 combo.addItem("Списание")
-                combo.currentTextChanged.connect(self.filter_supplies_by_type)
+                combo.currentTextChanged.connect(self.filter_supplies)
                 combo.setStyleSheet("""
                     QComboBox {
                         font-weight: bold;
@@ -1571,7 +1574,7 @@ class MainWindow(QMainWindow):
                         border: 1px solid #d0d0d0;
                     }
                 """)
-                self.operation_type_filter_combo = combo
+                self.operation_type_filter = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 3:
@@ -1650,16 +1653,16 @@ class MainWindow(QMainWindow):
         page.setLayout(layout)
         self.work_area.addWidget(page)
 
-        self.btn_search_supplies.clicked.connect(self.search_supplies_data)
+        self.btn_search_supplies.clicked.connect(self.search_supplies)
         self.btn_add_supply.clicked.connect(lambda: self.modify_furniture('supply'))
         self.btn_write_off.clicked.connect(lambda: self.modify_furniture('write_off'))
 
-        self.load_supplies_data()
+        self.load_supplies()
 
         return page
 
-    def filter_supplies_by_type(self):
-        selected_type = self.operation_type_filter_combo.currentText()
+    def filter_supplies(self):
+        selected_type = self.operation_type_filter.currentText()
 
         if not hasattr(self, 'all_supplies_data') or not self.all_supplies_data:
             return
@@ -1677,7 +1680,7 @@ class MainWindow(QMainWindow):
                 else:
                     self.supplies_table.setRowHidden(row, True)
     #Сотрудники
-    def create_employees_page(self):
+    def create_employees(self):
         page = QWidget()
         layout = QVBoxLayout()
         top_panel = QHBoxLayout()
@@ -1824,12 +1827,12 @@ class MainWindow(QMainWindow):
 
         info_layout.addWidget(QLabel("Должность:"), row, 2)
         position = employee.get("position", "")
-        info_layout.addWidget(QLabel(str(position) if position else "Не указана"), row, 3)
+        info_layout.addWidget(QLabel(str(position)), row, 3)
         row += 1
 
         info_layout.addWidget(QLabel("Пароль:"), row, 2)
         password = employee.get("password", "")
-        info_layout.addWidget(QLabel(str(password) if password else "Не указан"), row, 3)
+        info_layout.addWidget(QLabel(str(password)), row, 3)
         row += 1
 
         main_layout.addWidget(info_widget)
@@ -1876,7 +1879,7 @@ class MainWindow(QMainWindow):
         self.selected_employee_id = None
         self.btn_modify_employee.setEnabled(False)
     #Касса
-    def create_cash_page(self):
+    def create_cash(self):
         page = QWidget()
         main_layout = QVBoxLayout()
 
@@ -1904,15 +1907,15 @@ class MainWindow(QMainWindow):
         search_layout.addWidget(self.btn_search_catalog_cash)
         catalog_controls_row.addWidget(search_widget)
 
-        self.category_filter_combo_catalog = QComboBox()
-        self.category_filter_combo_catalog.addItem("Все категории")
-        self.category_filter_combo_catalog.setFixedWidth(150)
-        catalog_controls_row.addWidget(self.category_filter_combo_catalog)
+        self.category_filter_cash_catalog = QComboBox()
+        self.category_filter_cash_catalog.addItem("Все категории")
+        self.category_filter_cash_catalog.setFixedWidth(150)
+        catalog_controls_row.addWidget(self.category_filter_cash_catalog)
 
-        self.btn_add_to_cart = QPushButton("Добавить в кассу")
-        self.btn_add_to_cart.setFixedWidth(150)
+        self.btn_add = QPushButton("Добавить в кассу")
+        self.btn_add.setFixedWidth(150)
 
-        catalog_controls_row.addWidget(self.btn_add_to_cart)
+        catalog_controls_row.addWidget(self.btn_add)
 
         catalog_controls_row.addStretch()
         catalog_layout.addLayout(catalog_controls_row)
@@ -1956,7 +1959,7 @@ class MainWindow(QMainWindow):
                         border: 1px solid #d0d0d0;
                     }
                 """)
-                self.material_filter_combo_catalog = combo
+                self.material_filter_cash_catalog = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 2:
@@ -1984,7 +1987,7 @@ class MainWindow(QMainWindow):
                         border: 1px solid #d0d0d0;
                     }
                 """)
-                self.color_filter_combo_catalog = combo
+                self.color_filter_cash_catalog = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 4:
@@ -2068,6 +2071,7 @@ class MainWindow(QMainWindow):
         client_row.addWidget(name_label)
 
         self.client_name_input = QLineEdit()
+        self.client_name_input.setMaxLength(99)
         client_row.addWidget(self.client_name_input)
 
         phone_label = QLabel("Тел.")
@@ -2075,6 +2079,7 @@ class MainWindow(QMainWindow):
         client_row.addWidget(phone_label)
 
         self.client_phone_input = QLineEdit()
+        self.client_phone_input.setMaxLength(15)
         client_row.addWidget(self.client_phone_input)
 
         email_label = QLabel("e-mail:")
@@ -2082,6 +2087,7 @@ class MainWindow(QMainWindow):
         client_row.addWidget(email_label)
 
         self.client_email_input = QLineEdit()
+        self.client_email_input.setMaxLength(30)
         client_row.addWidget(self.client_email_input)
 
         client_row.addStretch()
@@ -2114,15 +2120,15 @@ class MainWindow(QMainWindow):
         cart_search_layout.addWidget(self.btn_search_cart)
         cart_controls_row.addWidget(cart_search_widget)
 
-        self.category_filter_combo_cart = QComboBox()
-        self.category_filter_combo_cart.addItem("Все категории")
-        self.category_filter_combo_cart.setFixedWidth(150)
-        cart_controls_row.addWidget(self.category_filter_combo_cart)
+        self.category_filter_cart = QComboBox()
+        self.category_filter_cart.addItem("Все категории")
+        self.category_filter_cart.setFixedWidth(150)
+        cart_controls_row.addWidget(self.category_filter_cart)
 
-        self.btn_remove_from_cart = QPushButton("Убрать из кассы")
-        self.btn_remove_from_cart.setFixedWidth(150)
+        self.btn_remove = QPushButton("Убрать из кассы")
+        self.btn_remove.setFixedWidth(150)
 
-        cart_controls_row.addWidget(self.btn_remove_from_cart)
+        cart_controls_row.addWidget(self.btn_remove)
 
         cart_controls_row.addStretch()
         cart_layout.addLayout(cart_controls_row)
@@ -2166,7 +2172,7 @@ class MainWindow(QMainWindow):
                         border: 1px solid #d0d0d0;
                     }
                 """)
-                self.material_filter_combo_cart = combo
+                self.material_filter_cart = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 2:
@@ -2194,7 +2200,7 @@ class MainWindow(QMainWindow):
                         border: 1px solid #d0d0d0;
                     }
                 """)
-                self.color_filter_combo_cart = combo
+                self.color_filter_cart = combo
                 header_widget_layout.addWidget(combo)
 
             elif i == 4:
@@ -2284,7 +2290,7 @@ class MainWindow(QMainWindow):
             checkbox = QCheckBox(service_name)
             checkbox.service_name = service_name
             checkbox.service_price = service_price
-            checkbox.stateChanged.connect(self.update_order_summary)
+            checkbox.stateChanged.connect(self.update_sum)
             checkboxes_panel.addWidget(checkbox)
             self.service_checkboxes[service_name] = checkbox
 
@@ -2320,7 +2326,7 @@ class MainWindow(QMainWindow):
             self.discounts_combo.addItem(f"{row[0]} ({row[1]}%)", float(row[1]))
 
         self.discounts_combo.setFixedWidth(150)
-        self.discounts_combo.currentIndexChanged.connect(self.update_order_summary)
+        self.discounts_combo.currentIndexChanged.connect(self.update_sum)
         discount_layout.addWidget(self.discounts_combo)
 
         sums_panel.addWidget(discount_widget)
@@ -2332,8 +2338,8 @@ class MainWindow(QMainWindow):
         total_label = QLabel("Сумма со скидкой:")
         total_layout.addWidget(total_label)
 
-        self.total_with_discount_value_label = QLabel("0 руб")
-        total_layout.addWidget(self.total_with_discount_value_label)
+        self.total_discount_value = QLabel("0 руб")
+        total_layout.addWidget(self.total_discount_value)
         sums_panel.addWidget(total_widget)
 
         summary_panel.addLayout(sums_panel)
@@ -2349,23 +2355,29 @@ class MainWindow(QMainWindow):
         page.setLayout(main_layout)
         self.work_area.addWidget(page)
 
-        self.load_cash_filters_data()
-        self.load_catalog_data_cash()
+        self.load_cash_filters()
+        self.load_catalog_cash()
         self.cart_data = []
 
-        self.btn_add_to_cart.clicked.connect(self.add_item_to_cart)
-        self.btn_remove_from_cart.clicked.connect(self.remove_item_from_cart)
+        self.btn_add.clicked.connect(self.add_item)
+        self.btn_remove.clicked.connect(self.remove_item)
         self.btn_confirm_order.clicked.connect(self.confirm_order)
 
         self.btn_search_catalog_cash.clicked.connect(self.search_cash_page)
         self.btn_search_cart.clicked.connect(self.search_cart_cash)
 
-        self.category_filter_combo_catalog.currentTextChanged.connect(self.filter_category_cash)
-        self.category_filter_combo_cart.currentTextChanged.connect(self.filter_category_cart)
+        self.category_filter_cash_catalog.currentTextChanged.connect(self.filter_category_cash)
+        self.category_filter_cart.currentTextChanged.connect(self.filter_category_cart)
+
+        self.material_filter_cash_catalog.currentTextChanged.connect(self.filter_material_cash)
+        self.color_filter_cash_catalog.currentTextChanged.connect(self.filter_color_cash)
+
+        self.material_filter_cart.currentTextChanged.connect(self.filter_material_cart)
+        self.color_filter_cart.currentTextChanged.connect(self.filter_color_cart)
 
         return page
 
-    def update_order_summary(self):
+    def update_sum(self):
         base_total = 0
         for cart_item in self.cart_data:
             base_total += float(cart_item['price']) * cart_item['quantity']
@@ -2383,9 +2395,9 @@ class MainWindow(QMainWindow):
         total_with_services = total_after_discount + services_total
 
         self.sum_value_label.setText(f"{base_total + services_total:.2f} руб")
-        self.total_with_discount_value_label.setText(f"{total_with_services:.2f} руб")
+        self.total_discount_value.setText(f"{total_with_services:.2f} руб")
 
-    def add_item_to_cart(self):
+    def add_item(self):
         current_row = self.catalog_table_cash.currentRow()
 
         if current_row < 0:
@@ -2453,9 +2465,9 @@ class MainWindow(QMainWindow):
         if new_quantity == 0:
             self.catalog_table_cash.setRowHidden(current_row, True)
 
-        self.update_order_summary()
+        self.update_sum()
 
-    def remove_item_from_cart(self):
+    def remove_item(self):
         current_row = self.cart_table.currentRow()
 
         if current_row < 0:
@@ -2492,7 +2504,7 @@ class MainWindow(QMainWindow):
 
                 break
 
-        self.update_order_summary()
+        self.update_sum()
 
     def confirm_order(self):
         client_name = self.client_name_input.text().strip()
@@ -2507,6 +2519,12 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Ошибка", "Введите телефон клиента!")
             return
 
+        try:
+            phone = int(client_phone)
+        except ValueError:
+            QMessageBox.warning(self, "Ошибка", "Телефон должен содержать только цифры!")
+            return
+
         if not client_email or '@' not in client_email:
             QMessageBox.warning(self, "Ошибка", "Введите корректный email!")
             return
@@ -2516,12 +2534,10 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            client_query = """
-            SELECT idКлиент FROM Клиент 
-            WHERE email = %s 
-            LIMIT 1
+            client = """
+            SELECT idКлиент FROM Клиент WHERE email = %s LIMIT 1
             """
-            client_result = db.execute_query(client_query, (client_email,))
+            client_result = db.execute_query(client, (client_email,))
 
             if client_result and client_result[0][0]:
                 client_id = client_result[0][0]
@@ -2535,11 +2551,11 @@ class MainWindow(QMainWindow):
                 if patronymic:
                     full_name += f" {patronymic}"
 
-                client_insert_query = """
-                INSERT INTO Клиент (email, телефон, ФИО) 
-                VALUES (%s, %s, %s)
-                """
-                db.execute_query(client_insert_query, (client_email, client_phone, full_name))
+                client_insert = """
+                                INSERT INTO Клиент (email, телефон, ФИО) 
+                                VALUES (%s, %s, %s)
+                                """
+                db.execute_query(client_insert, (client_email, phone, full_name))
 
                 get_client_id_query = "SELECT LAST_INSERT_ID()"
                 client_id_result = db.execute_query(get_client_id_query)
@@ -2553,18 +2569,17 @@ class MainWindow(QMainWindow):
                 if discount_result and discount_result[0][0]:
                     discount_id = discount_result[0][0]
 
-            # 3. Создаем заказ
             current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             current_employee_id = self.user_data.get('id', 1)
 
-            order_query = """
-            INSERT INTO Заказ (Дата, Статус, Клиент_idКлиент, Сотрудники_idСотрудника, Скидка_idСкидка)
-            VALUES (%s, 'Размещён', %s, %s, %s)
-            """
-            db.execute_query(order_query, (current_date, client_id, current_employee_id, discount_id))
+            order="""
+                    INSERT INTO Заказ (Дата, Статус, Клиент_idКлиент, Сотрудники_idСотрудника, Скидка_idСкидка)
+                    VALUES (%s, 'Размещён', %s, %s, %s)
+                    """
+            db.execute_query(order, (current_date, client_id, current_employee_id, discount_id))
 
-            get_order_id_query = "SELECT LAST_INSERT_ID()"
-            order_id_result = db.execute_query(get_order_id_query)
+            get_order_id = "SELECT LAST_INSERT_ID()"
+            order_id_result = db.execute_query(get_order_id)
             order_id = order_id_result[0][0]
 
             for service_name, checkbox in self.service_checkboxes.items():
@@ -2574,46 +2589,33 @@ class MainWindow(QMainWindow):
 
                     if service_result and service_result[0][0]:
                         service_id = service_result[0][0]
-                        service_link_query = """
-                        INSERT INTO ДопУслуги_has_Заказ (ДопУслуги_idДопУслуги, Заказ_idЗаказ)
-                        VALUES (%s, %s)
-                        """
-                        db.execute_query(service_link_query, (service_id, order_id))
+                        service_link =  """
+                                        INSERT INTO ДопУслуги_has_Заказ (ДопУслуги_idДопУслуги, Заказ_idЗаказ)
+                                        VALUES (%s, %s)
+                                        """
+                        db.execute_query(service_link, (service_id, order_id))
 
             for cart_item in self.cart_data:
                 furniture_id = cart_item['furniture_id']
                 quantity = cart_item['quantity']
 
-                check_stock_query = """
-                SELECT Количество FROM Мебель WHERE idМебель = %s
-                """
-                stock_result = db.execute_query(check_stock_query, (furniture_id,))
+                order_item ="""
+                            INSERT INTO ПозицииВзаказе (Заказ_idЗаказ, Мебель_idМебель, Количество)
+                            VALUES (%s, %s, %s)
+                            """
+                db.execute_query(order_item, (order_id, furniture_id, quantity))
 
-                if not stock_result or stock_result[0][0] < quantity:
-                    raise Exception(
-                        f"Недостаточно товара {cart_item['name']} на складе! Доступно: {stock_result[0][0] if stock_result else 0}, нужно: {quantity}")
-
-                order_item_query = """
-                INSERT INTO ПозицииВзаказе (Заказ_idЗаказ, Мебель_idМебель, Количество)
-                VALUES (%s, %s, %s)
-                """
-                db.execute_query(order_item_query, (order_id, furniture_id, quantity))
-
-                update_stock_query = """
-                UPDATE Мебель 
-                SET Количество = Количество - %s
-                WHERE idМебель = %s
-                """
-                db.execute_query(update_stock_query, (quantity, furniture_id))
+                update_stock = """
+                                UPDATE Мебель SET Количество = Количество - %s WHERE idМебель = %s
+                            """
+                db.execute_query(update_stock, (quantity, furniture_id))
 
             total_amount = sum(item['quantity'] * item['price'] for item in self.cart_data)
 
             self.clear_cart()
-            self.load_catalog_data_cash()
-            self.load_catalog_data()
-
-            if hasattr(self, 'orders_table'):
-                self.load_orders_data()
+            self.load_catalog_cash()
+            self.load_catalog()
+            self.load_orders()
 
         except Exception as e:
             QMessageBox.critical(self, "Ошибка",f"Не удалось оформить заказ: {str(e)}")
@@ -2631,13 +2633,12 @@ class MainWindow(QMainWindow):
 
         self.discounts_combo.setCurrentIndex(0)
 
-        self.update_order_summary()
+        self.update_sum()
 
-        self.load_catalog_data_cash()
-
+        self.load_catalog_cash()
     #Фильтры каталога кассы
     def filter_category_cash(self):
-        selected_category = self.category_filter_combo_catalog.currentText()
+        selected_category = self.category_filter_cash_catalog.currentText()
 
         if selected_category == "Все категории":
             for row in range(self.catalog_table_cash.rowCount()):
@@ -2653,7 +2654,7 @@ class MainWindow(QMainWindow):
                 self.catalog_table_cash.setRowHidden(row, True)
 
     def filter_material_cash(self):
-        selected_material = self.material_filter_combo_catalog.currentText()
+        selected_material = self.material_filter_cash_catalog.currentText()
 
         if selected_material == "Материал":
             for row in range(self.catalog_table_cash.rowCount()):
@@ -2669,7 +2670,7 @@ class MainWindow(QMainWindow):
                 self.catalog_table_cash.setRowHidden(row, True)
 
     def filter_color_cash(self):
-        selected_color = self.color_filter_combo_catalog.currentText()
+        selected_color = self.color_filter_cash_catalog.currentText()
 
         if selected_color == "Цвет":
             for row in range(self.catalog_table_cash.rowCount()):
@@ -2685,7 +2686,7 @@ class MainWindow(QMainWindow):
                 self.catalog_table_cash.setRowHidden(row, True)
     #Фильтры корзины
     def filter_category_cart(self):
-        selected_category = self.category_filter_combo_cart.currentText()
+        selected_category = self.category_filter_cart.currentText()
 
         if selected_category == "Все категории":
             for row in range(self.cart_table.rowCount()):
@@ -2700,7 +2701,7 @@ class MainWindow(QMainWindow):
                 self.cart_table.setRowHidden(row, True)
 
     def filter_material_cart(self):
-        selected_material = self.material_filter_combo_cart.currentText()
+        selected_material = self.material_filter_cart.currentText()
 
         if selected_material == "Материал":
             for row in range(self.cart_table.rowCount()):
@@ -2719,7 +2720,7 @@ class MainWindow(QMainWindow):
                     self.cart_table.setRowHidden(row, True)
 
     def filter_color_cart(self):
-        selected_color = self.color_filter_combo_cart.currentText()
+        selected_color = self.color_filter_cart.currentText()
 
         if selected_color == "Цвет":
             for row in range(self.cart_table.rowCount()):
@@ -2737,7 +2738,7 @@ class MainWindow(QMainWindow):
                 else:
                     self.cart_table.setRowHidden(row, True)
     #Заказы
-    def create_orders_page(self):
+    def create_orders(self):
         page = QWidget()
         main_layout = QVBoxLayout()
 
@@ -2764,10 +2765,7 @@ class MainWindow(QMainWindow):
         self.orders_table = QTableWidget()
         self.orders_table.setColumnCount(9)
         self.orders_table.verticalHeader().setVisible(False)
-        self.orders_table.setHorizontalHeaderLabels([
-            "№заказа", "Клиент", "Мебель", "Количество,шт",
-            "Дата", "Доп. услуги", "Статус", "Стоимость,руб", "Сотрудник"
-        ])
+        self.orders_table.setHorizontalHeaderLabels(["№заказа", "Клиент", "Мебель", "Количество,шт","Дата", "Доп. услуги", "Статус", "Стоимость,руб", "Сотрудник"])
 
         column_widths = [80, 175, 175, 100, 120, 134, 150, 120, 175]
         for i, width in enumerate(column_widths):
@@ -2795,23 +2793,23 @@ class MainWindow(QMainWindow):
         status_label.setFixedWidth(150)
         status_layout.addWidget(status_label)
 
-        self.status_placed_checkbox = QCheckBox("Размещён")
-        self.status_in_process_checkbox = QCheckBox("В процессе")
-        self.status_completed_checkbox = QCheckBox("Выполнен")
+        self.status_placed = QCheckBox("Размещён")
+        self.status_process = QCheckBox("В процессе")
+        self.status_completed = QCheckBox("Выполнен")
 
         self.status_button_group = QButtonGroup()
         self.status_button_group.setExclusive(True)
-        self.status_button_group.addButton(self.status_placed_checkbox)
-        self.status_button_group.addButton(self.status_in_process_checkbox)
-        self.status_button_group.addButton(self.status_completed_checkbox)
+        self.status_button_group.addButton(self.status_placed)
+        self.status_button_group.addButton(self.status_process)
+        self.status_button_group.addButton(self.status_completed)
 
-        self.status_placed_checkbox.setEnabled(False)
-        self.status_in_process_checkbox.setEnabled(False)
-        self.status_completed_checkbox.setEnabled(False)
+        self.status_placed.setEnabled(False)
+        self.status_process.setEnabled(False)
+        self.status_completed.setEnabled(False)
 
-        status_layout.addWidget(self.status_placed_checkbox)
-        status_layout.addWidget(self.status_in_process_checkbox)
-        status_layout.addWidget(self.status_completed_checkbox)
+        status_layout.addWidget(self.status_placed)
+        status_layout.addWidget(self.status_process)
+        status_layout.addWidget(self.status_completed)
 
         status_layout.addStretch()
         main_layout.addWidget(status_panel)
@@ -2819,34 +2817,34 @@ class MainWindow(QMainWindow):
         page.setLayout(main_layout)
         self.work_area.addWidget(page)
 
-        self.load_orders_data()
+        self.load_orders()
 
-        self.btn_search_orders.clicked.connect(self.search_orders_page)
-        self.orders_table.itemSelectionChanged.connect(self.on_order_selected)
-        self.status_placed_checkbox.stateChanged.connect(lambda: self.update_order_status("Размещён"))
-        self.status_in_process_checkbox.stateChanged.connect(lambda: self.update_order_status("В процессе"))
-        self.status_completed_checkbox.stateChanged.connect(lambda: self.update_order_status("Выполнен"))
+        self.btn_search_orders.clicked.connect(self.search_orders)
+        self.orders_table.itemSelectionChanged.connect(self.order_selected)
+        self.status_placed.stateChanged.connect(lambda: self.update_order("Размещён"))
+        self.status_process.stateChanged.connect(lambda: self.update_order("В процессе"))
+        self.status_completed.stateChanged.connect(lambda: self.update_order("Выполнен"))
 
         return page
 
-    def on_order_selected(self):
+    def order_selected(self):
         selected_rows = self.orders_table.selectionModel().selectedRows()
 
         if not selected_rows:
-            self.status_placed_checkbox.setEnabled(False)
-            self.status_in_process_checkbox.setEnabled(False)
-            self.status_completed_checkbox.setEnabled(False)
+            self.status_placed.setEnabled(False)
+            self.status_process.setEnabled(False)
+            self.status_completed.setEnabled(False)
 
             self.status_button_group.setExclusive(False)
-            self.status_placed_checkbox.setChecked(False)
-            self.status_in_process_checkbox.setChecked(False)
-            self.status_completed_checkbox.setChecked(False)
+            self.status_placed.setChecked(False)
+            self.status_process.setChecked(False)
+            self.status_completed.setChecked(False)
             self.status_button_group.setExclusive(True)
             return
 
-        self.status_placed_checkbox.setEnabled(True)
-        self.status_in_process_checkbox.setEnabled(True)
-        self.status_completed_checkbox.setEnabled(True)
+        self.status_placed.setEnabled(True)
+        self.status_process.setEnabled(True)
+        self.status_completed.setEnabled(True)
 
         row = selected_rows[0].row()
         status_item = self.orders_table.item(row, 6)
@@ -2854,22 +2852,22 @@ class MainWindow(QMainWindow):
         if status_item:
             current_status = status_item.text()
 
-            self.status_placed_checkbox.blockSignals(True)
-            self.status_in_process_checkbox.blockSignals(True)
-            self.status_completed_checkbox.blockSignals(True)
+            self.status_placed.blockSignals(True)
+            self.status_process.blockSignals(True)
+            self.status_completed.blockSignals(True)
 
             if current_status == "Размещён":
-                self.status_placed_checkbox.setChecked(True)
+                self.status_placed.setChecked(True)
             elif current_status == "В процессе":
-                self.status_in_process_checkbox.setChecked(True)
+                self.status_process.setChecked(True)
             elif current_status == "Выполнен":
-                self.status_completed_checkbox.setChecked(True)
+                self.status_completed.setChecked(True)
 
-            self.status_placed_checkbox.blockSignals(False)
-            self.status_in_process_checkbox.blockSignals(False)
-            self.status_completed_checkbox.blockSignals(False)
+            self.status_placed.blockSignals(False)
+            self.status_process.blockSignals(False)
+            self.status_completed.blockSignals(False)
 
-    def update_order_status(self, new_status):
+    def update_order(self, new_status):
         selected_rows = self.orders_table.selectionModel().selectedRows()
 
         if not selected_rows:
@@ -2890,7 +2888,7 @@ class MainWindow(QMainWindow):
         if status_item:
             status_item.setText(new_status)
     #Клиенты
-    def create_clients_page(self):
+    def create_clients(self):
         page = QWidget()
         layout = QVBoxLayout()
 
@@ -2947,7 +2945,7 @@ class MainWindow(QMainWindow):
         page.setLayout(layout)
         self.work_area.addWidget(page)
 
-        self.btn_search_clients.clicked.connect(self.search_clients_page)
+        self.btn_search_clients.clicked.connect(self.search_clients)
         self.load_clients_cards()
 
         return page
@@ -3004,42 +3002,57 @@ class MainWindow(QMainWindow):
 
         return card
     #Отчёты
-    def create_reports_page(self):
+    def create_reports(self):
         page = QWidget()
         layout = QVBoxLayout()
 
-        buttons_panel = QHBoxLayout()
-        buttons_panel.setSpacing(10)
+        first_row = QHBoxLayout()
+        first_row.setSpacing(10)
 
-        self.report_buttons = []
-        report_configs = [
-            ("Продажи за период", "sales_period"),
-            ("Продажи по работникам", "sales_employees"),
-            ("Доходы и расходы", "income_expenses"),
-            ("Средний чек", "avg_check"),
-            ("Анализ продаж", "sales_analysis"),
-            ("Анализ рентабельности", "profitability_analysis")
-        ]
+        self.btn_period_sales = QPushButton("Продажи за период")
+        self.btn_period_sales.setFixedWidth(170)
+        self.btn_period_sales.setFixedHeight(40)
+        self.btn_period_sales.clicked.connect(lambda: self.generate_report(self.sales_period))
+        first_row.addWidget(self.btn_period_sales)
 
-        for btn_text, report_type in report_configs:
-            btn = QPushButton(btn_text)
-            btn.setFixedHeight(40)
-            btn.setMinimumWidth(150)
+        self.btn_employee_sales = QPushButton("Продажи сотрудников")
+        self.btn_employee_sales.setFixedWidth(170)
+        self.btn_employee_sales.setFixedHeight(40)
+        self.btn_employee_sales.clicked.connect(lambda: self.generate_report(self.generate_sales_employee))
+        first_row.addWidget(self.btn_employee_sales)
 
-            btn.clicked.connect(lambda checked, rt=report_type: self.generate_report_by_type(rt))
+        self.btn_income_expenses = QPushButton("Доходы и расходы")
+        self.btn_income_expenses.setFixedWidth(170)
+        self.btn_income_expenses.setFixedHeight(40)
+        self.btn_income_expenses.clicked.connect(lambda: self.generate_report(self.generate_profit_report))
+        first_row.addWidget(self.btn_income_expenses)
 
-            buttons_panel.addWidget(btn)
-            self.report_buttons.append(btn)
+        self.btn_avg_check = QPushButton("Средний чек")
+        self.btn_avg_check.setFixedWidth(170)
+        self.btn_avg_check.setFixedHeight(40)
+        self.btn_avg_check.clicked.connect(lambda: self.generate_report(self.generate_average_check))
+        first_row.addWidget(self.btn_avg_check)
 
-        buttons_panel.addStretch()
-        layout.addLayout(buttons_panel)
+        self.btn_sales_analysis = QPushButton("Анализ продаж")
+        self.btn_sales_analysis.setFixedWidth(170)
+        self.btn_sales_analysis.setFixedHeight(40)
+        self.btn_sales_analysis.clicked.connect(lambda: self.generate_report(self.sales_analysis))
+        first_row.addWidget(self.btn_sales_analysis)
 
+        self.btn_profitability = QPushButton("Рентабельность")
+        self.btn_profitability.setFixedWidth(170)
+        self.btn_profitability.setFixedHeight(40)
+        self.btn_profitability.clicked.connect(lambda: self.generate_report(self.generate_profit_analysis))
+        first_row.addWidget(self.btn_profitability)
+
+        first_row.addStretch()
+        layout.addLayout(first_row)
         report_display = QGroupBox()
-
         report_display_layout = QVBoxLayout()
 
         self.report_text = QTextEdit()
         self.report_text.setReadOnly(True)
+        self.report_text.setMinimumHeight(400)
 
         report_display_layout.addWidget(self.report_text)
         report_display.setLayout(report_display_layout)
@@ -3050,311 +3063,224 @@ class MainWindow(QMainWindow):
 
         return page
 
-    def generate_report_by_type(self, report_type):
+    def generate_report(self, report_func):
         date_to = QDate.currentDate().toString("yyyy-MM-dd")
         date_from = QDate.currentDate().addMonths(-1).toString("yyyy-MM-dd")
 
-        try:
-            report_data = ""
+        report_data = report_func(date_from, date_to)
 
-            if report_type == "sales_period":
-                report_data = self.generate_sales_period_report(date_from, date_to)
-            elif report_type == "sales_employees":
-                report_data = self.generate_sales_by_employee_report(date_from, date_to)
-            elif report_type == "income_expenses":
-                report_data = self.generate_income_expenses_report(date_from, date_to)
-            elif report_type == "avg_check":
-                report_data = self.generate_average_check_report(date_from, date_to)
-            elif report_type == "sales_analysis":
-                report_data = self.generate_sales_analysis_report(date_from, date_to)
-            elif report_type == "profitability_analysis":
-                report_data = self.generate_profitability_analysis_report(date_from, date_to)
+        self.report_text.setPlainText(report_data)
 
-            self.report_text.setPlainText(report_data)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Не удалось оформить отчёт: {str(e)}")
-
-    def generate_profitability_analysis_report(self, date_from, date_to):
+    def generate_profit_analysis(self, date_from, date_to):
         try:
             report = "АНАЛИЗ РЕНТАБЕЛЬНОСТИ\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 80 + "\n\n"
-
-            report += "ОСНОВНЫЕ ПОКАЗАТЕЛИ РЕНТАБЕЛЬНОСТИ:\n"
-            report += "-" * 50 + "\n"
 
             main_query = """
             SELECT 
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
+                COALESCE(SUM(p.Количество * (SELECT COALESCE(p2.Себестоимость) 
                     FROM Поставки p2 
                     WHERE p2.Мебель_idМебель = m.idМебель 
                     AND p2.Тип_операции = 'Поставка' 
-                    ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                ) * (1 + COALESCE(c.Надценка, 0) / 100)), 2) as total_revenue,
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100))),
+                COALESCE(SUM(p.Количество * (
+                    SELECT COALESCE(p2.Себестоимость) 
                     FROM Поставки p2 
                     WHERE p2.Мебель_idМебель = m.idМебель 
                     AND p2.Тип_операции = 'Поставка' 
-                    ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                )), 2) as total_cost
+                    ORDER BY p2.Дата DESC LIMIT 1)))
             FROM Заказ z
             JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
             JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
             LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
             WHERE DATE(z.Дата) BETWEEN %s AND %s
-            AND z.Статус IN ('Размещён', 'В процессе', 'Выполнен')
             """
 
             main_result = db.execute_query(main_query, (date_from, date_to))
 
             if main_result and main_result[0]:
-                total_revenue = main_result[0][0] if main_result[0][0] else 0.0
-                total_cost = main_result[0][1] if main_result[0][1] else 0.0
+                revenue = main_result[0][0] if main_result[0][0] else 0.0
+                cost = main_result[0][1] if main_result[0][1] else 0.0
 
-                if total_cost > 0:
-                    profit = total_revenue - total_cost
-                    profitability = (profit / total_cost) * 100
-                    markup = ((total_revenue - total_cost) / total_cost) * 100
+                if cost > 0:
+                    profit = revenue - cost
+                    profitability = (profit / cost) * 100
 
-                    report += f"  Выручка: {total_revenue:.2f} руб\n"
-                    report += f"  Себестоимость: {total_cost:.2f} руб\n"
-                    report += f"  Прибыль: {profit:.2f} руб\n"
-                    report += f"  Рентабельность: {profitability:.2f}%\n"
-                    report += f"  Наценка: {markup:.2f}%\n"
+                    report += f"Выручка: {revenue:.2f} руб\n"
+                    report += f"Себестоимость: {cost:.2f} руб\n"
+                    report += f"Прибыль: {profit:.2f} руб\n"
+                    report += f"Рентабельность: {profitability:.2f}%\n"
                 else:
-                    report += "  Нет данных о продажах за выбранный период\n"
+                    report += "Нет продаж за период\n"
             else:
-                report += "  Нет данных о продажах за выбранный период\n"
+                report += "Нет данных\n"
 
-            report += "\n\n"
-
-            report += "РЕНТАБЕЛЬНОСТЬ ПО КАТЕГОРИЯМ:\n"
-            report += "-" * 70 + "\n"
-            report += f"{'Категория':<25} {'Выручка':<12} {'Себест.':<12} {'Рентаб.':<12} {'Наценка':<12}\n"
-            report += "-" * 70 + "\n"
+            report += "\nРЕНТАБЕЛЬНОСТЬ ПО КАТЕГОРИЯМ:\n"
+            report += "-" * 50 + "\n"
 
             category_query = """
             SELECT 
-                c.Наименование as category,
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
+                c.Наименование,
+                COALESCE(SUM(p.Количество * (SELECT COALESCE(p2.Себестоимость) 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель 
+                    AND p2.Тип_операции = 'Поставка' 
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + c.Надценка / 100))),
+                COALESCE(SUM(p.Количество * (SELECT COALESCE(p2.Себестоимость) 
                     FROM Поставки p2 
                     WHERE p2.Мебель_idМебель = m.idМебель 
                     AND p2.Тип_операции = 'Поставка' 
                     ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                ) * (1 + c.Надценка / 100)), 2) as revenue,
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
-                    FROM Поставки p2 
-                    WHERE p2.Мебель_idМебель = m.idМебель 
-                    AND p2.Тип_операции = 'Поставка' 
-                    ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                )), 2) as cost,
-                SUM(p.Количество) as total_items
+                    LIMIT 1))) 
             FROM Категория c
             LEFT JOIN Мебель m ON c.idКатегории = m.Категория_idКатегории
             LEFT JOIN ПозицииВзаказе p ON m.idМебель = p.Мебель_idМебель
             LEFT JOIN Заказ z ON p.Заказ_idЗаказ = z.idЗаказ
             WHERE DATE(z.Дата) BETWEEN %s AND %s
             GROUP BY c.idКатегории
-            HAVING total_items > 0
-            ORDER BY revenue DESC
+            ORDER BY idКатегории DESC
             """
 
             category_result = db.execute_query(category_query, (date_from, date_to))
 
             if category_result:
                 for row in category_result:
-                    category = row[0] if row[0] else "Без категории"
-                    revenue = row[1] if row[1] else 0.0
-                    cost = row[2] if row[2] else 0.0
+                    category = row[0]
+                    cat_revenue = row[1]
+                    cat_cost = row[2]
 
-                    if cost > 0:
-                        profit_category = revenue - cost
-                        profitability_category = (profit_category / cost) * 100
-                        markup_category = ((revenue - cost) / cost) * 100
+                    if cat_cost > 0:
+                        cat_profit = cat_revenue - cat_cost
+                        cat_profitability = (cat_profit / cat_cost) * 100
 
-                        report += f"{category:<25} {revenue:<12.2f} {cost:<12.2f} {profitability_category:<12.2f}% {markup_category:<12.2f}%\n"
-                    else:
-                        report += f"{category:<25} {revenue:<12.2f} {cost:<12.2f} {'-':<12} {'-':<12}\n"
+                        report += f"{category:<20} {cat_profitability:>7.1f}%\n"
             else:
-                report += "  Нет данных\n"
+                report += "Нет данных\n"
 
-            report += "\n\n"
+            report += "\nАНАЛИЗ ЭФФЕКТИВНОСТИ:\n"
+            report += "-" * 30 + "\n"
 
-            report += "3. ТОП-5 САМЫХ РЕНТАБЕЛЬНЫХ ТОВАРОВ:\n"
-            report += "-" * 70 + "\n"
-
-            top_profit_query = """
-            SELECT 
-                m.Наименование as product_name,
-                c.Наименование as category,
-                SUM(p.Количество) as total_sold,
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
-                    FROM Поставки p2 
-                    WHERE p2.Мебель_idМебель = m.idМебель 
-                    AND p2.Тип_операции = 'Поставка' 
-                    ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                ) * (1 + COALESCE(c.Надценка, 0) / 100)), 2) as revenue,
-                ROUND(SUM(p.Количество * (
-                    SELECT COALESCE(p2.Себестоимость, 0) 
-                    FROM Поставки p2 
-                    WHERE p2.Мебель_idМебель = m.idМебель 
-                    AND p2.Тип_операции = 'Поставка' 
-                    ORDER BY p2.Дата DESC 
-                    LIMIT 1
-                )), 2) as cost
-            FROM Мебель m
-            LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
-            LEFT JOIN ПозицииВзаказе p ON m.idМебель = p.Мебель_idМебель
-            LEFT JOIN Заказ z ON p.Заказ_idЗаказ = z.idЗаказ
-            WHERE DATE(z.Дата) BETWEEN %s AND %s
-            GROUP BY m.idМебель, m.Наименование, c.Наименование
-            HAVING total_sold > 0 AND cost > 0
-            ORDER BY (revenue - cost) / cost DESC
-            LIMIT 5
-            """
-
-            top_profit_result = db.execute_query(top_profit_query, (date_from, date_to))
-
-            if top_profit_result:
-                for i, row in enumerate(top_profit_result, 1):
-                    product = row[0] if row[0] else "Неизвестный товар"
-                    category = row[1] if row[1] else "Без категории"
-                    sold = row[2] if row[2] else 0
-                    revenue = row[3] if row[3] else 0.0
-                    cost = row[4] if row[4] else 0.0
-
-                    if cost > 0:
-                        profit_item = revenue - cost
-                        profitability_item = (profit_item / cost) * 100
-
-                        if len(product) > 25:
-                            product = product[:22] + "..."
-
-                        report += f"  {i}. {product:<25} ({category})\n"
-                        report += f"     Продано: {sold} шт, Прибыль: {profit_item:.2f} руб, Рентабельность: {profitability_item:.2f}%\n"
-            else:
-                report += "  Нет данных\n"
-
-            report += "\n\n"
-
-            report += "АНАЛИЗ ЭФФЕКТИВНОСТИ:\n"
-            report += "-" * 40 + "\n"
-
-            if main_result and main_result[0] and total_cost > 0:
-                profitability = ((total_revenue - total_cost) / total_cost) * 100
+            if main_result and main_result[0] and cost > 0:
+                profitability = ((revenue - cost) / cost) * 100
 
                 if profitability > 50:
-                    report += "  Оценка: ОТЛИЧНАЯ рентабельность (>50%)\n"
+                    report += "Оценка: ОТЛИЧНАЯ (>50%)\n"
                 elif profitability > 30:
-                    report += "  Оценка: ХОРОШАЯ рентабельность (30-50%)\n"
+                    report += "Оценка: ХОРОШАЯ (30-50%)\n"
                 elif profitability > 15:
-                    report += "  Оценка: СРЕДНЯЯ рентабельность (15-30%)\n"
+                    report += "Оценка: СРЕДНЯЯ (15-30%)\n"
                 elif profitability > 0:
-                    report += "  Оценка: НИЗКАЯ рентабельность (0-15%)\n"
+                    report += "Оценка: НИЗКАЯ (0-15%)\n"
                 else:
-                    report += "  Оценка: УБЫТОЧНО\n"
-
-                avg_profit_per_item = (total_revenue - total_cost) / total_cost * 100 if total_cost > 0 else 0
-                report += f"\n  Средняя рентабельность на товар: {avg_profit_per_item:.2f}%\n"
+                    report += "Оценка: УБЫТОЧНО\n"
 
             return report
 
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось оформить отчёт: {str(e)}")
+            return f"Ошибка: {str(e)}"
 
-    def generate_sales_period_report(self, date_from, date_to):
+    def sales_period(self, date_from, date_to):
         try:
-            query = """
+            summary = """
+        SELECT 
+            COUNT(z.idЗаказ),
+            SUM(p.Количество),
+            SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                FROM Поставки p2 
+                WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100))) 
+        FROM Заказ z
+        JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
+        JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
+        LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
+        WHERE DATE(z.Дата) BETWEEN %s AND %s
+        """
+
+            summary = db.execute_query(summary, (date_from, date_to))
+
+            category = """
             SELECT 
-                DATE(z.Дата) as date,
-                COUNT(DISTINCT z.idЗаказ) as order_count,
-                SUM(p.Количество) as total_items,
-                ROUND(SUM(p.Количество * 1000), 2) as total_revenue  -- Упрощенный расчет
+                c.Наименование,
+                SUM(p.Количество),
+                SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                FROM Поставки p2 
+                WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100))) 
             FROM Заказ z
             JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
+            JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
+            LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
             WHERE DATE(z.Дата) BETWEEN %s AND %s
-            GROUP BY DATE(z.Дата)
-            ORDER BY date
+            GROUP BY c.Наименование
+            ORDER BY c.Наименование DESC
             """
 
-            result = db.execute_query(query, (date_from, date_to))
+            categories = db.execute_query(category, (date_from, date_to))
 
-            report = "ОТЧЕТ: ПРОДАЖИ ЗА ПЕРИОД\n"
+            report = "ОТЧЕТ О ПРОДАЖАХ\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 60 + "\n\n"
-            report += f"{'Дата':<12} {'Заказов':<10} {'Товаров':<10} {'Выручка (руб)':<15}\n"
-            report += "-" * 60 + "\n"
 
-            total_orders = 0
-            total_items = 0
-            total_revenue = 0.0
+            if summary and summary[0]:
+                orders = summary[0][0] or 0
+                items = summary[0][1] or 0
+                revenue = summary[0][2] or 0.0
 
-            for row in result:
-                date_obj = row[0]
-                if date_obj:
-                    date_str = date_obj.strftime("%Y-%m-%d") if hasattr(date_obj, 'strftime') else str(date_obj)
-                else:
-                    date_str = "Нет даты"
+                report += "ОБЩАЯ СТАТИСТИКА:\n"
+                report += f"Заказов: {orders}\n"
+                report += f"Товаров продано: {items} шт.\n"
+                report += f"Общая выручка: {revenue:.2f} руб.\n\n"
 
-                orders = int(row[1]) if row[1] else 0
-                items = int(row[2]) if row[2] else 0
-                revenue = float(row[3]) if row[3] else 0.0
+            report += "ПРОДАЖИ ПО КАТЕГОРИЯМ:\n"
+            report += "-" * 50 + "\n"
+            report += f"{'Категория':<20} {'Кол-во':<10} {'Выручка':<12}\n"
+            report += "-" * 50 + "\n"
 
-                report += f"{date_str:<12} {orders:<10} {items:<10} {revenue:<15.2f}\n"
+            if categories:
+                for row in categories:
+                    category = row[0] if row[0] else "Без категории"
+                    items_count = row[1] or 0
+                    cat_revenue = row[2] or 0.0
 
-                total_orders += orders
-                total_items += items
-                total_revenue += revenue
-
-            report += "-" * 60 + "\n"
-            report += f"{'ИТОГО':<12} {total_orders:<10} {total_items:<10} {total_revenue:<15.2f}\n"
+                    report += f"{category:<20} {items_count:<10} {cat_revenue:<12.2f}\n"
+            else:
+                report += "Нет данных по категориям\n"
 
             return report
 
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось оформить отчёт: {str(e)}")
+            return f"Ошибка: {str(e)}"
 
-    def generate_sales_by_employee_report(self, date_from, date_to):
+    def generate_sales_employee(self, date_from, date_to):
         try:
             query = """
             SELECT 
-                CONCAT(s.Фамилия, ' ', s.Имя) as employee_name,
-                d.Наименование as position,
-                COUNT(DISTINCT z.idЗаказ) as order_count,
-                SUM(p.Количество) as total_items,
-                ROUND(SUM(
-                    p.Количество * 
-                    COALESCE(c.Надценка, 10) / 100 *  -- Простая наценка 10%% если нет данных
-                    1000  -- Базовая цена 1000 руб за единицу для упрощения
-                ), 2) as total_revenue
+                CONCAT(s.Фамилия, ' ', s.Имя) ,
+                par.email,
+                COUNT(DISTINCT z.idЗаказ),
+                SUM(p.Количество),
+                SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100)))
             FROM Сотрудники s
             JOIN Должность d ON s.Должность_idДолжности = d.idДолжности
             LEFT JOIN Заказ z ON s.idСотрудника = z.Сотрудники_idСотрудника
             LEFT JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
             LEFT JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
             LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
+            LEFT JOIN Пароли par ON s.Пароли_idПароли = par.idПароли
             WHERE DATE(z.Дата) BETWEEN %s AND %s
-            GROUP BY s.idСотрудника, s.Фамилия, s.Имя, d.Наименование
-            ORDER BY total_revenue DESC
+            GROUP BY s.idСотрудника, s.Фамилия, s.Имя
+            ORDER BY idСотрудника DESC
             """
 
             result = db.execute_query(query, (date_from, date_to))
 
-            report = "ОТЧЕТ: ПРОДАЖИ ПО СОТРУДНИКАМ\n"
+            report = "ПРОДАЖИ ПО СОТРУДНИКАМ\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 80 + "\n\n"
-            report += f"{'Сотрудник':<25} {'Должность':<15} {'Заказов':<10} {'Товаров':<10} {'Выручка (руб)':<15}\n"
+            report += f"{'Сотрудник':<25} {'e-mail':<15} {'Заказов':<10} {'Товаров':<10} {'Выручка (руб)':<15}\n"
             report += "-" * 80 + "\n"
 
             total_orders = 0
@@ -3362,8 +3288,8 @@ class MainWindow(QMainWindow):
             total_revenue = 0.0
 
             for row in result:
-                employee = row[0] if row[0] else "Не назначен"
-                position = row[1] if row[1] else "Не указана"
+                employee = row[0]
+                position = row[1]
                 orders = int(row[2]) if row[2] else 0
                 items = int(row[3]) if row[3] else 0
                 revenue = float(row[4]) if row[4] else 0.0
@@ -3386,38 +3312,65 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
 
-    def generate_income_expenses_report(self, date_from, date_to):
+    def generate_profit_report(self, date_from, date_to):
         try:
             report = "ДОХОДЫ И РАСХОДЫ\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 60 + "\n\n"
 
-            income_query = """
+            income = """
             SELECT 
-                ROUND(SUM(p.Количество * 1000), 2) as total_income  # Базовая цена 1000 руб
+                SUM(p.Количество * (
+                    SELECT COALESCE(p2.Себестоимость) 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель 
+                    AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100))
             FROM Заказ z
             JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
+            JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
+            LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
             WHERE DATE(z.Дата) BETWEEN %s AND %s
-            AND z.Статус IN ('Размещён', 'В процессе', 'Выполнен')
             """
 
-            income_result = db.execute_query(income_query, (date_from, date_to))
-            total_income = float(income_result[0][0]) if income_result and income_result[0][0] else 0.0
-
-            expenses_query = """
+            income_services = """
             SELECT 
-                ROUND(SUM(p.Количество * p.Себестоимость), 2) as total_expenses
+                SUM(du.стоимость)
+            FROM Заказ z
+            JOIN ДопУслуги_has_Заказ dhz ON z.idЗаказ = dhz.Заказ_idЗаказ
+            JOIN ДопУслуги du ON dhz.ДопУслуги_idДопУслуги = du.idДопУслуги
+            WHERE DATE(z.Дата) BETWEEN %s AND %s
+            """
+
+            income_goods_result = db.execute_query(income, (date_from, date_to))
+            income_services_result = db.execute_query(income_services, (date_from, date_to))
+
+            total_income_goods = float(income_goods_result[0][0]) if income_goods_result and income_goods_result[0][0] else 0.0
+            total_income_services = float(income_services_result[0][0]) if income_services_result and \
+                                                                           income_services_result[0][0] else 0.0
+            total_income = total_income_goods + total_income_services
+
+            expenses = """
+            SELECT 
+                COALESCE(SUM(p.Количество * (
+                    SELECT COALESCE(p2.Себестоимость) 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель 
+                    AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC 
+                    LIMIT 1
+                ))) 
             FROM Поставки p
+            JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
             WHERE DATE(p.Дата) BETWEEN %s AND %s
             AND p.Тип_операции = 'Поставка'
             """
 
-            expenses_result = db.execute_query(expenses_query, (date_from, date_to))
+            expenses_result = db.execute_query(expenses, (date_from, date_to))
             total_expenses = float(expenses_result[0][0]) if expenses_result and expenses_result[0][0] else 0.0
 
             salary_query = """
             SELECT 
-                ROUND(SUM(d.Оклад), 2) as total_salary
+                SUM(d.Оклад)
             FROM Сотрудники s
             JOIN Должность d ON s.Должность_idДолжности = d.idДолжности
             """
@@ -3426,7 +3379,9 @@ class MainWindow(QMainWindow):
             total_salary = float(salary_result[0][0]) if salary_result and salary_result[0][0] else 0.0
 
             report += "ДОХОДЫ:\n"
-            report += f"  Выручка от продаж: {total_income:.2f} руб\n\n"
+            report += f"  Выручка от продаж товаров: {total_income_goods:.2f} руб\n"
+            report += f"  Выручка от доп. услуг (сборка/доставка): {total_income_services:.2f} руб\n"
+            report += f"  Общая выручка: {total_income:.2f} руб\n\n"
 
             report += "РАСХОДЫ:\n"
             report += f"  Закупка товаров: {total_expenses:.2f} руб\n"
@@ -3435,7 +3390,6 @@ class MainWindow(QMainWindow):
             total_expenses_all = total_expenses + total_salary
             report += f"  Всего расходов: {total_expenses_all:.2f} руб\n\n"
 
-            # Финансовый результат
             financial_result = total_income - total_expenses_all
             report += "ФИНАНСОВЫЙ РЕЗУЛЬТАТ:\n"
             report += f"  Прибыль/Убыток: {financial_result:.2f} руб\n"
@@ -3450,28 +3404,36 @@ class MainWindow(QMainWindow):
             return report
 
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось оформить отчёт: {str(e)}")
+            return f"Ошибка формирования отчёта: {str(e)}"
 
-    def generate_average_check_report(self, date_from, date_to):
+    def generate_average_check(self, date_from, date_to):
         try:
             query = """
             SELECT 
-                DATE(z.Дата) as date,
-                COUNT(DISTINCT z.idЗаказ) as order_count,
-                ROUND(SUM(p.Количество * 1000), 2) as total_revenue,
-                ROUND(SUM(p.Количество * 1000) / COUNT(DISTINCT z.idЗаказ), 2) as avg_check
+                DATE(z.Дата),
+                COUNT(DISTINCT z.idЗаказ),
+                COALESCE(SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100)))) +
+                COALESCE(SUM((SELECT COALESCE(SUM(du.стоимость))
+                    FROM ДопУслуги_has_Заказ dhz
+                    JOIN ДопУслуги du ON dhz.ДопУслуги_idДопУслуги = du.idДопУслуги
+                    WHERE dhz.Заказ_idЗаказ = z.idЗаказ)))
             FROM Заказ z
             JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
+            JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
+            LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
             WHERE DATE(z.Дата) BETWEEN %s AND %s
             GROUP BY DATE(z.Дата)
-            ORDER BY date
+            ORDER BY DATE(z.Дата)
             """
 
             result = db.execute_query(query, (date_from, date_to))
 
             report = "СРЕДНИЙ ЧЕК\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 70 + "\n\n"
             report += f"{'Дата':<12} {'Заказов':<10} {'Выручка (руб)':<15} {'Средний чек (руб)':<15}\n"
             report += "-" * 70 + "\n"
 
@@ -3481,15 +3443,11 @@ class MainWindow(QMainWindow):
             for row in result:
                 date_obj = row[0]
                 if date_obj:
-                    date_str = date_obj.strftime("%Y-%m-%d") if hasattr(date_obj, 'strftime') else str(date_obj)
-                else:
-                    date_str = "Нет даты"
+                    date_str = date_obj.strftime("%d.%m.%Y") if hasattr(date_obj, 'strftime') else str(date_obj)
 
                 orders = int(row[1]) if row[1] else 0
-
-                # Преобразуем Decimal в float
                 revenue = float(row[2]) if row[2] else 0.0
-                avg_check = float(row[3]) if row[3] else 0.0
+                avg_check = revenue / orders if orders > 0 else 0.0
 
                 report += f"{date_str:<12} {orders:<10} {revenue:<15.2f} {avg_check:<15.2f}\n"
 
@@ -3507,8 +3465,11 @@ class MainWindow(QMainWindow):
             if result:
                 valid_values = []
                 for row in result:
-                    if row[3] is not None:
-                        valid_values.append(float(row[3]))
+                    orders = int(row[1]) if row[1] else 0
+                    revenue = float(row[2]) if row[2] else 0.0
+
+                    if orders > 0:
+                        valid_values.append(revenue / orders)
 
                 if valid_values:
                     max_avg = max(valid_values)
@@ -3522,41 +3483,51 @@ class MainWindow(QMainWindow):
                         first_row = result[0]
                         last_row = result[-1]
 
-                        if first_row[3] and float(first_row[3]) > 0:
-                            first_avg = float(first_row[3])
-                            last_avg = float(last_row[3]) if last_row[3] else 0
-                            change_percent = ((last_avg - first_avg) / first_avg) * 100
-                            report += f"  Изменение за период: {change_percent:+.1f}%\n"
+                        first_orders = int(first_row[1]) if first_row[1] else 0
+                        first_revenue = float(first_row[2]) if first_row[2] else 0.0
+                        last_orders = int(last_row[1]) if last_row[1] else 0
+                        last_revenue = float(last_row[2]) if last_row[2] else 0.0
+
+                        if first_orders > 0 and last_orders > 0:
+                            first_avg = first_revenue / first_orders
+                            last_avg = last_revenue / last_orders
+
+                            if first_avg > 0:
+                                change_percent = ((last_avg - first_avg) / first_avg) * 100
+                                report += f"  Изменение за период: {change_percent:+.1f}%\n"
 
             return report
 
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось оформить отчёт: {str(e)}")
+            return f"Ошибка формирования отчёта: {str(e)}"
 
-    def generate_sales_analysis_report(self, date_from, date_to):
+    def sales_analysis(self, date_from, date_to):
         try:
             report = "АНАЛИЗ ПРОДАЖ\n"
             report += f"Период: {date_from} - {date_to}\n"
-            report += "=" * 60 + "\n\n"
 
             report += "ПРОДАЖИ ПО КАТЕГОРИЯМ:\n"
             report += "-" * 40 + "\n"
 
-            category_query = """
+            category = """
             SELECT 
-                c.Наименование as category,
-                SUM(p.Количество) as total_items,
-                ROUND(SUM(p.Количество * 1000), 2) as revenue  # Базовая цена 1000 руб
+                c.Наименование,
+                SUM(p.Количество),
+                SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100)))
             FROM Категория c
             LEFT JOIN Мебель m ON c.idКатегории = m.Категория_idКатегории
             LEFT JOIN ПозицииВзаказе p ON m.idМебель = p.Мебель_idМебель
             LEFT JOIN Заказ z ON p.Заказ_idЗаказ = z.idЗаказ
             WHERE DATE(z.Дата) BETWEEN %s AND %s
             GROUP BY c.idКатегории
-            ORDER BY revenue DESC
+            ORDER BY idКатегории DESC
             """
 
-            category_result = db.execute_query(category_query, (date_from, date_to))
+            category_result = db.execute_query(category, (date_from, date_to))
 
             if category_result:
                 for row in category_result:
@@ -3573,31 +3544,31 @@ class MainWindow(QMainWindow):
             report += "ТОП-10 ТОВАРОВ ПО ПРОДАЖАМ:\n"
             report += "-" * 40 + "\n"
 
-            top_products_query = """
+            top_products = """
             SELECT 
-                m.Наименование as product_name,
-                SUM(p.Количество) as total_sold,
-                ROUND(SUM(p.Количество * 1000), 2) as revenue  # Базовая цена 1000 руб
+                m.Наименование,
+                SUM(p.Количество),
+                SUM(p.Количество * COALESCE((SELECT p2.Себестоимость 
+                    FROM Поставки p2 
+                    WHERE p2.Мебель_idМебель = m.idМебель AND p2.Тип_операции = 'Поставка'
+                    ORDER BY p2.Дата DESC LIMIT 1) * (1 + COALESCE(c.Надценка) / 100)))
             FROM Мебель m
             LEFT JOIN ПозицииВзаказе p ON m.idМебель = p.Мебель_idМебель
             LEFT JOIN Заказ z ON p.Заказ_idЗаказ = z.idЗаказ
+            LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
             WHERE DATE(z.Дата) BETWEEN %s AND %s
             GROUP BY m.idМебель
-            ORDER BY total_sold DESC
+            ORDER BY idМебель DESC
             LIMIT 10
             """
 
-            top_result = db.execute_query(top_products_query, (date_from, date_to))
+            top_result = db.execute_query(top_products, (date_from, date_to))
 
             if top_result:
                 for i, row in enumerate(top_result, 1):
-                    product = row[0] if row[0] else "Неизвестный товар"
-                    sold = row[1] if row[1] else 0
-                    revenue = row[2] if row[2] else 0.0
-
-                    # Обрезаем слишком длинные названия
-                    if len(product) > 30:
-                        product = product[:27] + "..."
+                    product = row[0]
+                    sold = row[1]
+                    revenue = row[2]
 
                     report += f"  {i:2}. {product:<30}: {sold:>5} шт, {revenue:>10.2f} руб\n"
             else:
@@ -3609,7 +3580,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
 
     # Методы загрузки данных
-    def load_catalog_data(self):
+    def load_catalog(self):
         query = """
                     SELECT 
                         m.idМебель,
@@ -3621,12 +3592,11 @@ class MainWindow(QMainWindow):
                         m.Габариты,
                         m.Вес,
                         m.Количество,
-                        COALESCE(ROUND(
-                            (SELECT p.Себестоимость 
-                            FROM Поставки p 
-                            WHERE p.Мебель_idМебель = m.idМебель AND Тип_операции = 'Поставка'
-                            ORDER BY p.Дата DESC 
-                            LIMIT 1) * (1 + COALESCE(c.Надценка, 0) / 100), 2), 0) as price
+                        COALESCE((SELECT p.Себестоимость 
+                        FROM Поставки p 
+                        WHERE p.Мебель_idМебель = m.idМебель AND Тип_операции = 'Поставка'
+                        ORDER BY p.Дата DESC 
+                        LIMIT 1) * (1 + COALESCE(c.Надценка) / 100))
                     FROM Мебель m
                     LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
                     LEFT JOIN Материал mat ON m.Материал_idМатериал = mat.idМатериал
@@ -3653,9 +3623,9 @@ class MainWindow(QMainWindow):
 
                 self.catalog_table.setItem(row_idx, col_idx, item)
 
-        self.load_catalog_filter_data()
+        self.load_filter()
 
-    def load_supplies_data(self):
+    def load_supplies(self):
         query = """
                     SELECT 
                         p.idПоставки,
@@ -3699,13 +3669,14 @@ class MainWindow(QMainWindow):
                 s.Фамилия,
                 s.Имя,
                 s.Отчество,
-                d.Наименование as Должность,
+                d.Наименование,
                 s.телефон,
-                p.email as Должность,
-                DATE_FORMAT(s.Дата_рождения, '%%d.%%m.%%Y') as Дата_рождения,
+                p.email,
+                DATE_FORMAT(s.Дата_рождения, '%%d.%%m.%%Y'),
                 d.Оклад as Оклад,
                 s.График_работы,
-                s.idСотрудника
+                s.idСотрудника,
+                p.Пароль  
             FROM Сотрудники s
             JOIN Должность d ON s.Должность_idДолжности = d.idДолжности
             LEFT JOIN Пароли p ON s.Пароли_idПароли = p.idПароли  
@@ -3713,14 +3684,12 @@ class MainWindow(QMainWindow):
             """
             employees = db.execute_query(query)
 
-            if not employees:
-                no_data_label = QLabel("Сотрудники не найдены")
-                no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                no_data_label.setStyleSheet("font-size: 16px; color: #888; padding: 50px;")
-                self.employees_cards_layout.addWidget(no_data_label, 0, 0, 1, 2)
-                return
-
             for i, employee in enumerate(employees):
+                salary_value = employee[7] if employee[7] else 0
+                salary_str = str(salary_value)
+
+                password = employee[10]
+
                 card = self.create_employee_card({
                     "surname": employee[0],
                     "name": employee[1],
@@ -3729,9 +3698,10 @@ class MainWindow(QMainWindow):
                     "phone": employee[4],
                     "email": employee[5] if employee[5] else "Не указан",
                     "birth_date": employee[6],
-                    "salary": employee[7] if employee[7] else 0,
+                    "salary": salary_str,
                     "schedule": employee[8] if employee[8] else "Не указан",
-                    "id": employee[9]
+                    "id": employee[9],
+                    "password": password
                 })
 
                 row = i // 2
@@ -3739,70 +3709,55 @@ class MainWindow(QMainWindow):
                 self.employees_cards_layout.addWidget(card, row, col)
 
         except Exception as e:
-            QMessageBox.critical(self,"Ошибка",  f"Не удалось загрузить сотрудников: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить сотрудников: {str(e)}")
 
-    def load_cash_filters_data(self):
-        category_query = "SELECT DISTINCT Наименование FROM Категория ORDER BY Наименование"
+    def load_cash_filters(self):
+        category_query = "SELECT Наименование FROM Категория ORDER BY Наименование"
         categories = db.execute_query(category_query)
 
-        material_query = "SELECT DISTINCT Наименование FROM Материал ORDER BY Наименование"
+        material_query = "SELECT Наименование FROM Материал ORDER BY Наименование"
         materials = db.execute_query(material_query)
 
-        color_query = "SELECT DISTINCT Наименование FROM Цвет ORDER BY Наименование"
+        color_query = "SELECT Наименование FROM Цвет ORDER BY Наименование"
         colors = db.execute_query(color_query)
 
-        self.category_filter_combo_catalog.clear()
-        self.category_filter_combo_catalog.addItem("Все категории")
+        self.category_filter_cash_catalog.clear()
+        self.category_filter_cash_catalog.addItem("Все категории")
         for category in categories:
             if category[0]:
-                self.category_filter_combo_catalog.addItem(category[0])
+                self.category_filter_cash_catalog.addItem(category[0])
 
-        self.material_filter_combo_catalog.clear()
-        self.material_filter_combo_catalog.addItem("Материал")
+        self.material_filter_cash_catalog.clear()
+        self.material_filter_cash_catalog.addItem("Материал")
         for material in materials:
             if material[0]:
-                self.material_filter_combo_catalog.addItem(material[0])
+                self.material_filter_cash_catalog.addItem(material[0])
 
-        self.color_filter_combo_catalog.clear()
-        self.color_filter_combo_catalog.addItem("Цвет")
+        self.color_filter_cash_catalog.clear()
+        self.color_filter_cash_catalog.addItem("Цвет")
         for color in colors:
             if color[0]:
-                self.color_filter_combo_catalog.addItem(color[0])
+                self.color_filter_cash_catalog.addItem(color[0])
 
-        self.category_filter_combo_cart.clear()
-        self.category_filter_combo_cart.addItem("Все категории")
+        self.category_filter_cart.clear()
+        self.category_filter_cart.addItem("Все категории")
         for category in categories:
             if category[0]:
-                self.category_filter_combo_cart.addItem(category[0])
+                self.category_filter_cart.addItem(category[0])
 
-        self.material_filter_combo_cart.clear()
-        self.material_filter_combo_cart.addItem("Материал")
+        self.material_filter_cart.clear()
+        self.material_filter_cart.addItem("Материал")
         for material in materials:
             if material[0]:
-                self.material_filter_combo_cart.addItem(material[0])
+                self.material_filter_cart.addItem(material[0])
 
-        self.color_filter_combo_cart.clear()
-        self.color_filter_combo_cart.addItem("Цвет")
+        self.color_filter_cart.clear()
+        self.color_filter_cart.addItem("Цвет")
         for color in colors:
             if color[0]:
-                self.color_filter_combo_cart.addItem(color[0])
+                self.color_filter_cart.addItem(color[0])
 
-    def load_categories_for_filters(self):
-        query = "SELECT DISTINCT Наименование FROM Категория ORDER BY Наименование"
-        result = db.execute_query(query)
-
-        self.category_filter_combo_catalog.clear()
-        self.category_filter_combo_cart.clear()
-
-        self.category_filter_combo_catalog.addItem("Все категории")
-        self.category_filter_combo_cart.addItem("Все категории")
-
-        for row in result:
-            category_name = row[0]
-            self.category_filter_combo_catalog.addItem(category_name)
-            self.category_filter_combo_cart.addItem(category_name)
-
-    def load_catalog_data_cash(self):
+    def load_catalog_cash(self):
         query = """
                     SELECT 
                         m.Наименование,
@@ -3812,14 +3767,14 @@ class MainWindow(QMainWindow):
                         m.Габариты,
                         m.Вес,
                         m.Количество,
-                        COALESCE(ROUND(
+                        COALESCE(
                             (SELECT p.Себестоимость 
                             FROM Поставки p 
                             WHERE p.Мебель_idМебель = m.idМебель AND Тип_операции = 'Поставка'
                             ORDER BY p.Дата DESC 
-                            LIMIT 1) * (1 + COALESCE(c.Надценка, 0) / 100), 2), 0) as price,
+                            LIMIT 1) * (1 + COALESCE(c.Надценка) / 100)),
                         c.Наименование,
-                        m.idМебель as furniture_id
+                        m.idМебель
                     FROM Мебель m
                     LEFT JOIN Категория c ON m.Категория_idКатегории = c.idКатегории
                     LEFT JOIN Материал mat ON m.Материал_idМатериал = mat.idМатериал
@@ -3854,32 +3809,27 @@ class MainWindow(QMainWindow):
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.catalog_table_cash.setItem(row_idx, col_idx, item)
 
-    def load_orders_data(self):
+    def load_orders(self):
         try:
             query = """
             SELECT 
                 z.idЗаказ,
-                k.ФИО as client_name,
-                GROUP_CONCAT(DISTINCT m.Наименование SEPARATOR ', ') as furniture_items,
-                COALESCE(SUM(p.Количество), 0) as total_quantity,
+                k.ФИО,
+                GROUP_CONCAT(DISTINCT m.Наименование SEPARATOR ', '),
+                COALESCE(SUM(p.Количество)),
                 z.Дата,
-                GROUP_CONCAT(DISTINCT du.вид SEPARATOR ', ') as additional_services,
+                GROUP_CONCAT(DISTINCT du.вид SEPARATOR ', '),
                 z.Статус,
                 COALESCE(
                     SUM(p.Количество * 
-                        (SELECT COALESCE(p2.Себестоимость, 0) 
+                        (SELECT COALESCE(p2.Себестоимость) 
                          FROM Поставки p2 
                          WHERE p2.Мебель_idМебель = m.idМебель 
                            AND p2.Тип_операции = 'Поставка' 
                          ORDER BY p2.Дата DESC 
-                         LIMIT 1) * 
-                        (1 + COALESCE((
-                            SELECT Надценка 
-                            FROM Категория cat 
-                            WHERE cat.idКатегории = m.Категория_idКатегории
-                        ), 0) / 100)
-                    ), 0
-                ) as total_cost,
+                         LIMIT 1) * (1 + COALESCE((SELECT Надценка 
+                         FROM Категория cat 
+                         WHERE cat.idКатегории = m.Категория_idКатегории)) / 100))),
                 par.email
             FROM Заказ z
             JOIN Клиент k ON z.Клиент_idКлиент = k.idКлиент
@@ -3888,7 +3838,7 @@ class MainWindow(QMainWindow):
             LEFT JOIN ДопУслуги_has_Заказ dhz ON z.idЗаказ = dhz.Заказ_idЗаказ
             LEFT JOIN ДопУслуги du ON dhz.ДопУслуги_idДопУслуги = du.idДопУслуги
             LEFT JOIN Сотрудники s ON z.Сотрудники_idСотрудника = s.idСотрудника
-            LEFT JOIN Пароли par ON s.Пароли_idПароли = par.idПароли  -- Соединяем с таблицей паролей для email
+            LEFT JOIN Пароли par ON s.Пароли_idПароли = par.idПароли
             GROUP BY z.idЗаказ, k.ФИО, z.Дата, z.Статус, par.email
             ORDER BY z.idЗаказ 
             LIMIT 50
@@ -3920,7 +3870,6 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Ошибка",f"Не удалось оформить отчёт: {str(e)}")
-
 
     def load_clients_cards(self):
         for i in reversed(range(self.clients_cards_layout.count())):
@@ -3961,14 +3910,14 @@ class MainWindow(QMainWindow):
                 WHERE z.Клиент_idКлиент = %s
                 GROUP BY z.idЗаказ, m.Наименование, z.Статус, z.Дата
                 ORDER BY z.Дата DESC
-                LIMIT 3
+                LIMIT 5
                 """
                 orders = db.execute_query(last_order_query, (client[0],))
 
-                seller_query = """
+                seller = """
                 SELECT 
-                    CONCAT(s.Фамилия, ' ', s.Имя, ' ', COALESCE(s.Отчество, '')) as seller_name,
-                    p.email as seller_email
+                    CONCAT(s.Фамилия, ' ', s.Имя),
+                    p.email 
                 FROM Заказ z
                 LEFT JOIN Сотрудники s ON z.Сотрудники_idСотрудника = s.idСотрудника
                 LEFT JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
@@ -3976,7 +3925,7 @@ class MainWindow(QMainWindow):
                 ORDER BY z.Дата DESC
                 LIMIT 1
                 """
-                seller_result = db.execute_query(seller_query, (client[0],))
+                seller_result = db.execute_query(seller, (client[0],))
 
                 orders_info = ""
                 seller_info = ""
@@ -4020,67 +3969,12 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить клиентов: {str(e)}")
 
-    def load_clients_data(self):
-        try:
-            query = """
-            SELECT 
-                ФИО,
-                email,
-                телефон,
-                COALESCE((SELECT COUNT(*) FROM Заказ WHERE Клиент_idКлиент = Клиент.idКлиент), 0) as order_count,
-                DATE_FORMAT(COALESCE((SELECT MAX(Дата) FROM Заказ WHERE Клиент_idКлиент = Клиент.idКлиент), NOW()), '%%d.%%m.%%Y') as last_order
-            FROM Клиент
-            ORDER BY ФИО
-            LIMIT 50
-            """
-            result = db.execute_query(query)
-
-            self.clients_table.setRowCount(len(result))
-            for row_idx, row in enumerate(result):
-                for col_idx, value in enumerate(row):
-                    item = QTableWidgetItem(str(value) if value else "")
-                    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                    self.clients_table.setItem(row_idx, col_idx, item)
-
-        except Exception as e:
-            print(f"Ошибка загрузки клиентов: {e}")
-
-    def load_clients_orders_data(self):
-        try:
-            query = """
-            SELECT 
-                k.ФИО,
-                k.email,
-                k.телефон,
-                z.idЗаказ,
-                DATE_FORMAT(z.Дата, '%%d.%%m.%%Y %%H:%%i') as order_date,
-                COALESCE((SELECT SUM( p.Количество) 
-                 FROM ПозицииВзаказе p 
-                 JOIN Мебель m ON p.Мебель_idМебель = m.idМебель 
-                 WHERE p.Заказ_idЗаказ = z.idЗаказ), 0) as total
-            FROM Клиент k
-            INNER JOIN Заказ z ON k.idКлиент = z.Клиент_idКлиент
-            ORDER BY z.Дата DESC
-            LIMIT 50
-            """
-            result = db.execute_query(query)
-
-            self.clients_orders_table.setRowCount(len(result))
-            for row_idx, row in enumerate(result):
-                for col_idx, value in enumerate(row):
-                    item = QTableWidgetItem(str(value) if value else "")
-                    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                    self.clients_orders_table.setItem(row_idx, col_idx, item)
-
-        except Exception as e:
-            print(f"Ошибка загрузки данных клиентов: {e}")
-
     # Методы поиска
     def search_catalog(self):
         search_text = self.catalog_search.text().strip()
 
         if not search_text:
-            self.load_catalog_data()
+            self.load_catalog()
             return
 
         if not hasattr(self, 'all_catalog_data') or not self.all_catalog_data:
@@ -4105,7 +3999,7 @@ class MainWindow(QMainWindow):
 
             self.catalog_table.setRowHidden(row, not show_row)
 
-    def search_supplies_data(self):
+    def search_supplies(self):
         search_text = self.supplies_search.text().strip()
 
         if not search_text:
@@ -4147,34 +4041,36 @@ class MainWindow(QMainWindow):
                 s.Фамилия,
                 s.Имя,
                 s.Отчество,
-                d.Наименование as Должность,
+                d.Наименование,
                 s.телефон,
                 p.email,
-                DATE_FORMAT(s.Дата_рождения, '%%d.%%m.%%Y') as Дата_рождения,
+                DATE_FORMAT(s.Дата_рождения, '%%d.%%m.%%Y'),
                 d.Оклад,
                 s.График_работы,
-                s.idСотрудника
+                s.idСотрудника,
+                p.Пароль 
             FROM Сотрудники s
             JOIN Должность d ON s.Должность_idДолжности = d.idДолжности
             LEFT JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
             WHERE s.Фамилия LIKE %s 
                OR s.Имя LIKE %s 
-               OR s.Отчество LIKE %s 
-               OR d.Наименование LIKE %s
                OR p.email LIKE %s
             ORDER BY s.Фамилия, s.Имя
             """
 
             search_pattern = f"%{search_text}%"
-            employees = db.execute_query(query, (search_pattern, search_pattern, search_pattern,
-                                                 search_pattern, search_pattern))
+            employees = db.execute_query(query, (search_pattern, search_pattern, search_pattern))
 
             if not employees:
                 no_data_label = QLabel("Сотрудники не найдены")
                 no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                no_data_label.setStyleSheet("font-size: 16px; color: #888; padding: 50px;")
                 self.employees_cards_layout.addWidget(no_data_label, 0, 0, 1, 2)
                 return
+
+            for i, employee in enumerate(employees):
+                salary_value = employee[7] if employee[7] else 0
+                salary_str = str(salary_value)
+                password = employee[10]
 
             for i, employee in enumerate(employees):
                 card = self.create_employee_card({
@@ -4183,11 +4079,12 @@ class MainWindow(QMainWindow):
                     "patronymic": employee[2],
                     "position": employee[3],
                     "phone": employee[4],
-                    "email": employee[5] if employee[5] else "Не указан",
+                    "email": employee[5],
                     "birth_date": employee[6],
-                    "salary": employee[7] if employee[7] else 0,
+                    "salary": salary_str,
                     "schedule": employee[8] if employee[8] else "Не указан",
-                    "id": employee[9]
+                    "id": employee[9],
+                    "password": password
                 })
 
                 row = i // 2
@@ -4237,7 +4134,7 @@ class MainWindow(QMainWindow):
 
             self.cart_table.setRowHidden(row, not show_row)
 
-    def search_orders_page(self):
+    def search_orders(self):
         search_text = self.orders_search_input.text().strip().lower()
 
         if not search_text:
@@ -4246,14 +4143,14 @@ class MainWindow(QMainWindow):
 
             self.orders_table.clearSelection()
 
-            self.status_placed_checkbox.setEnabled(False)
-            self.status_in_process_checkbox.setEnabled(False)
-            self.status_completed_checkbox.setEnabled(False)
+            self.status_placed.setEnabled(False)
+            self.status_process.setEnabled(False)
+            self.status_completed.setEnabled(False)
 
             self.status_button_group.setExclusive(False)
-            self.status_placed_checkbox.setChecked(False)
-            self.status_in_process_checkbox.setChecked(False)
-            self.status_completed_checkbox.setChecked(False)
+            self.status_placed.setChecked(False)
+            self.status_process.setChecked(False)
+            self.status_completed.setChecked(False)
             self.status_button_group.setExclusive(True)
 
             return
@@ -4288,17 +4185,17 @@ class MainWindow(QMainWindow):
 
         self.orders_table.clearSelection()
 
-        self.status_placed_checkbox.setEnabled(False)
-        self.status_in_process_checkbox.setEnabled(False)
-        self.status_completed_checkbox.setEnabled(False)
+        self.status_placed.setEnabled(False)
+        self.status_process.setEnabled(False)
+        self.status_completed.setEnabled(False)
 
         self.status_button_group.setExclusive(False)
-        self.status_placed_checkbox.setChecked(False)
-        self.status_in_process_checkbox.setChecked(False)
-        self.status_completed_checkbox.setChecked(False)
+        self.status_placed.setChecked(False)
+        self.status_process.setChecked(False)
+        self.status_completed.setChecked(False)
         self.status_button_group.setExclusive(True)
 
-    def search_clients_page(self):
+    def search_clients(self):
         search_text = self.clients_search.text().strip()
 
         if not search_text:
@@ -4312,7 +4209,7 @@ class MainWindow(QMainWindow):
 
         try:
             query = """
-            SELECT DISTINCT
+            SELECT
                 k.idКлиент,
                 k.ФИО,
                 k.email,
@@ -4338,7 +4235,7 @@ class MainWindow(QMainWindow):
                 return
 
             for i, client in enumerate(clients):
-                last_order_query = """
+                last_order = """
                 SELECT 
                     z.idЗаказ,
                     z.Статус
@@ -4347,12 +4244,12 @@ class MainWindow(QMainWindow):
                 ORDER BY z.Дата DESC
                 LIMIT 3
                 """
-                orders = db.execute_query(last_order_query, (client[0],))
+                orders = db.execute_query(last_order, (client[0],))
 
-                seller_query = """
+                seller = """
                 SELECT 
-                    CONCAT(s.Фамилия, ' ', s.Имя, ' ', COALESCE(s.Отчество, '')) as seller_name,
-                    p.email as seller_email
+                    CONCAT(s.Фамилия, ' ', s.Имя,)) ,
+                    p.email 
                 FROM Заказ z
                 LEFT JOIN Сотрудники s ON z.Сотрудники_idСотрудника = s.idСотрудника
                 LEFT JOIN Пароли p ON s.Пароли_idПароли = p.idПароли
@@ -4360,7 +4257,7 @@ class MainWindow(QMainWindow):
                 ORDER BY z.Дата DESC
                 LIMIT 1
                 """
-                seller_result = db.execute_query(seller_query, (client[0],))
+                seller_result = db.execute_query(seller, (client[0],))
 
                 orders_info = ""
                 seller_info = ""
@@ -4405,155 +4302,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", f"Ошибка поиска: {str(e)}")
 
-    def search_cash_items(self):
-        search_text = self.cash_search_input.text().lower().strip()
-        selected_category = self.category_filter_combo_cash.currentText()
-
-        if not search_text and selected_category == "Все категории":
-            for row in range(self.cash_table.rowCount()):
-                self.cash_table.setRowHidden(row, False)
-            return
-
-        for row in range(self.cash_table.rowCount()):
-            should_show = True
-
-            if selected_category != "Все категории":
-                if hasattr(self, 'cart_data') and self.cart_data:
-                    item_category = None
-                    for cart_item in self.cart_data:
-                        if cart_item['row'] == row:
-                            item_category = cart_item.get('category')
-                            break
-
-                    if item_category != selected_category:
-                        should_show = False
-                else:
-                    item_name = self.cash_table.item(row, 0).text().lower()
-                    if selected_category.lower() not in item_name:
-                        should_show = False
-
-            if search_text and should_show:
-                should_show = False
-                for col in range(self.cash_table.columnCount()):
-                    item = self.cash_table.item(row, col)
-                    if item and search_text in item.text().lower():
-                        should_show = True
-                        break
-
-            self.cash_table.setRowHidden(row, not should_show)
-
-    # Методы генерации отчетов
-    def generate_report(self):
-        report_type = self.report_type_combo.currentText()
-        date_from = self.report_date_from.date().toString("yyyy-MM-dd")
-        date_to = self.report_date_to.date().toString("yyyy-MM-dd")
-
-        try:
-            report_text = f"Отчет: {report_type}\n"
-            report_text += f"Период: {date_from} - {date_to}\n"
-            report_text += "=" * 50 + "\n\n"
-
-            if report_type == "Отчёт по продажам":
-                query = """
-                SELECT 
-                    DATE(z.Дата) as date,
-                    COUNT(*) as order_count,
-                    SUM(p.Количество) as total_items,
-                    SUM(p.Количество) as total_revenue
-                FROM Заказ z
-                JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
-                JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
-                WHERE DATE(z.Дата) BETWEEN %s AND %s
-                GROUP BY DATE(z.Дата)
-                ORDER BY date
-                """
-                result = db.execute_query(query, (date_from, date_to))
-
-                report_text += "Дата          | Заказы | Товары | Выручка\n"
-                report_text += "-" * 45 + "\n"
-
-                for row in result:
-                    report_text += f"{row[0]} | {row[1]:6d} | {row[2]:6d} | {row[3]:10.2f} руб\n"
-
-            elif report_type == "Отчёт по выручке":
-                query = """
-                SELECT 
-                    m.Наименование,
-                    SUM(p.Количество) as sold_quantity,
-                    SUM( p.Количество) as revenue
-                FROM ПозицииВзаказе p
-                JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
-                JOIN Заказ z ON p.Заказ_idЗаказ = z.idЗаказ
-                WHERE DATE(z.Дата) BETWEEN %s AND %s
-                GROUP BY m.idМебель
-                ORDER BY revenue DESC
-                LIMIT 20
-                """
-                result = db.execute_query(query, (date_from, date_to))
-
-                report_text += "Товар                          | Продано | Выручка\n"
-                report_text += "-" * 50 + "\n"
-
-                total_revenue = 0
-                for row in result:
-                    name = row[0][:30] + "..." if len(row[0]) > 30 else row[0]
-                    report_text += f"{name:30s} | {row[1]:7d} | {row[2]:10.2f} руб\n"
-                    total_revenue += row[2]
-
-                report_text += f"\nОбщая выручка: {total_revenue:.2f} руб\n"
-
-            elif report_type == "Отчёт по среднему чеку":
-                query = """
-                SELECT 
-                    COUNT(*) as order_count,
-                    SUM(p.Количество) as total_revenue,
-                    AVG( p.Количество) as avg_check
-                FROM Заказ z
-                JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
-                JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
-                WHERE DATE(z.Дата) BETWEEN %s AND %s
-                """
-                result = db.execute_query(query, (date_from, date_to))
-
-                if result and result[0]:
-                    row = result[0]
-                    report_text += f"Количество заказов: {row[0]}\n"
-                    report_text += f"Общая выручка: {row[1]:.2f} руб\n"
-                    report_text += f"Средний чек: {row[2]:.2f} руб\n"
-
-            self.report_text.setText(report_text)
-
-        except Exception as e:
-            QMessageBox.critical(self,"Ошибка",  f"Не удалось сформировать отчёт: {str(e)}")
-
-    def generate_cash_report(self):
-        report_type = self.cash_report_combo.currentText()
-
-        try:
-            if report_type == "Продажи за сегодня":
-                query = """
-                SELECT 
-                    COUNT(*) as orders_today,
-                    SUM(p.Количество) as items_today,
-                    SUM(p.Количество) as revenue_today
-                FROM Заказ z
-                JOIN ПозицииВзаказе p ON z.idЗаказ = p.Заказ_idЗаказ
-                JOIN Мебель m ON p.Мебель_idМебель = m.idМебель
-                WHERE DATE(z.Дата) = CURDATE()
-                """
-                result = db.execute_query(query)
-
-                if result and result[0]:
-                    row = result[0]
-                    report_text = "Продажи за сегодня:\n\n"
-                    report_text += f"Заказов: {row[0]}\n"
-                    report_text += f"Товаров продано: {row[1]}\n"
-                    report_text += f"Выручка: {row[2]:.2f} руб\n"
-                    self.cash_report_text.setText(report_text)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Не удалось сформировать отчёт: {str(e)}")
-
     def modify_furniture(self,action_type):
         furniture_id = None
 
@@ -4568,10 +4316,10 @@ class MainWindow(QMainWindow):
         dialog = FurnitureDialog(self, furniture_id, action_type)
 
         if dialog.exec():
-            self.load_catalog_data()
-            self.load_catalog_data_cash()
+            self.load_catalog()
+            self.load_catalog_cash()
             if action_type in ['supply', 'write_off']:
-                self.load_supplies_data()
+                self.load_supplies()
 
     def add_employee(self):
         dialog = EmployeeDialog(self)

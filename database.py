@@ -18,43 +18,43 @@ class Database:
     def setup_database(self):
         with self.connection.cursor() as cursor:
             cursor.execute(
-                "CREATE DATABASE IF NOT EXISTS furniture_store_db")
-            cursor.execute("USE furniture_store_db")
+                "CREATE DATABASE IF NOT EXISTS furniture_store")
+            cursor.execute("USE furniture_store")
 
             tables = [
                 """
                 CREATE TABLE IF NOT EXISTS Клиент (
                     idКлиент INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(45) NOT NULL,
+                    email VARCHAR(30) NOT NULL,
                     телефон INT NOT NULL,
-                    ФИО VARCHAR(45) NOT NULL
+                    ФИО VARCHAR(99) NOT NULL
                 )
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS Должность (
                     idДолжности INT AUTO_INCREMENT PRIMARY KEY,
                     Наименование VARCHAR(45) NOT NULL,
-                    Оклад VARCHAR(45) NOT NULL
+                    Оклад INT 
                 )
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS Пароли (
                     idПароли INT AUTO_INCREMENT PRIMARY KEY,
-                    Пароль VARCHAR(45) NOT NULL,
-                    email VARCHAR(45) NOT NULL
+                    Пароль VARCHAR(30) NOT NULL,
+                    email VARCHAR(30) NOT NULL
                 )
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS Сотрудники (
                     idСотрудника INT AUTO_INCREMENT PRIMARY KEY,
-                    График_работы VARCHAR(45),
+                    График_работы VARCHAR(20),
                     телефон INT,
-                    Дата_рождения DATE NOT NULL,
+                    Дата_рождения DATE,
                     Фамилия VARCHAR(45) NOT NULL,
                     Имя VARCHAR(45) NOT NULL,
                     Отчество VARCHAR(45),
-                    Пароли_idПароли INT,
-                    Должность_idДолжности INT,
+                    Пароли_idПароли INT NOT NULL,
+                    Должность_idДолжности INT NOT NULL,
                     FOREIGN KEY (Пароли_idПароли) REFERENCES Пароли(idПароли),
                     FOREIGN KEY (Должность_idДолжности) REFERENCES Должность(idДолжности)
                 )
@@ -63,7 +63,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS Категория (
                     idКатегории INT AUTO_INCREMENT PRIMARY KEY,
                     Наименование VARCHAR(45) NOT NULL,
-                    Надценка INT 
+                    Надценка INT NOT NULL 
                 )
                 """,
                 """
@@ -89,20 +89,20 @@ class Database:
                 CREATE TABLE IF NOT EXISTS Скидка (
                     idСкидка INT AUTO_INCREMENT PRIMARY KEY,
                     Наименование VARCHAR(45) NOT NULL,
-                    Процент INT
+                    Процент INT NOT NULL
                 )
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS Мебель (
                     idМебель VARCHAR(10) PRIMARY KEY,
                     Наименование VARCHAR(45) NOT NULL,
-                    Производитель VARCHAR(45),
-                    Габариты VARCHAR(45),
-                    Вес INT,
-                    Количество INT DEFAULT 0,
-                    Цвет_idЦвет INT,
-                    Категория_idКатегории INT,
-                    Материал_idМатериал INT,
+                    Производитель VARCHAR(45) NOT NULL,
+                    Габариты VARCHAR(30) NOT NULL,
+                    Вес INT NOT NULL,
+                    Количество INT NOT NULL,
+                    Цвет_idЦвет INT NOT NULL,
+                    Категория_idКатегории INT NOT NULL,
+                    Материал_idМатериал INT NOT NULL,
                     FOREIGN KEY (Цвет_idЦвет) REFERENCES Цвет(idЦвет),
                     FOREIGN KEY (Категория_idКатегории) REFERENCES Категория(idКатегории),
                     FOREIGN KEY (Материал_idМатериал) REFERENCES Материал(idМатериал)
@@ -113,20 +113,20 @@ class Database:
                     idПоставки INT AUTO_INCREMENT PRIMARY KEY,
                     Дата DATE NOT NULL,
                     Количество INT NOT NULL,
-                    Себестоимость INT,
-                    Тип_операции VARCHAR(45),
-                    Мебель_idМебель VARCHAR(10),
+                    Себестоимость INT NOT NULL,
+                    Тип_операции VARCHAR(10) NOT NULL,
+                    Мебель_idМебель VARCHAR(10) NOT NULL,
                     FOREIGN KEY (Мебель_idМебель) REFERENCES Мебель(idМебель)
                 )
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS Заказ (
                     idЗаказ INT AUTO_INCREMENT PRIMARY KEY,
-                    Дата VARCHAR(45) NOT NULL,
-                    Статус VARCHAR(45) NOT NULL DEFAULT 'Оформлен',                    
+                    Дата DATE NOT NULL,
+                    Статус VARCHAR(10) NOT NULL,                    
                     Скидка_idСкидка INT,
-                    Клиент_idКлиент INT,
-                    Сотрудники_idСотрудника INT,
+                    Клиент_idКлиент INT NOT NULL,
+                    Сотрудники_idСотрудника INT NOT NULL,
                     FOREIGN KEY (Скидка_idСкидка) REFERENCES Скидка(idСкидка),
                     FOREIGN KEY (Клиент_idКлиент) REFERENCES Клиент(idКлиент),
                     FOREIGN KEY (Сотрудники_idСотрудника) REFERENCES Сотрудники(idСотрудника)
@@ -136,8 +136,8 @@ class Database:
                 CREATE TABLE IF NOT EXISTS ПозицииВзаказе (
                     idПозицииВзаказе INT AUTO_INCREMENT PRIMARY KEY,
                     Количество INT NOT NULL,
-                    Мебель_idМебель VARCHAR(10),
-                    Заказ_idЗаказ INT,
+                    Мебель_idМебель VARCHAR(10) NOT NULL,
+                    Заказ_idЗаказ INT NOT NULL,
                     FOREIGN KEY (Мебель_idМебель) REFERENCES Мебель(idМебель),
                     FOREIGN KEY (Заказ_idЗаказ) REFERENCES Заказ(idЗаказ)
                 )
@@ -159,10 +159,10 @@ class Database:
                 except Exception as e:
                     print(f"Ошибка при создании таблицы: {e}")
 
-            self.insert_sample_data(cursor)
+            self.insert_data(cursor)
             self.connection.commit()
 
-    def insert_sample_data(self, cursor):
+    def insert_data(self, cursor):
         cursor.execute("SELECT COUNT(*) FROM Должность")
         count = cursor.fetchone()[0]
         if count == 0:
@@ -213,7 +213,7 @@ class Database:
 
     def execute_query(self, query, params=None):
         with self.connection.cursor() as cursor:
-            cursor.execute("USE furniture_store_db")
+            cursor.execute("USE furniture_store")
             cursor.execute(query, params or ())
             if query.strip().upper().startswith('SELECT'):
                 return cursor.fetchall()
@@ -223,7 +223,7 @@ class Database:
 
     def execute_many(self, query, params_list):
         with self.connection.cursor() as cursor:
-            cursor.execute("USE furniture_store_db")
+            cursor.execute("USE furniture_store")
             cursor.executemany(query, params_list)
             self.connection.commit()
             return cursor.rowcount
